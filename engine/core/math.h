@@ -15,7 +15,7 @@ typedef struct { float x, y, z, w; } MxQuat;
 typedef struct { MxV3 min, max; } MxAabb;
 typedef struct { MxV3 origin, dir; } MxRay;
 typedef struct { float t; MxV3 point, normal; } MxRayHit;
-typedef struct { MxV3 translation; MxQuat rotation; MxV3 scale; } MxTransform;
+typedef struct { MxV3 translation; MxQuat rotation; MxV3 scale; } MxTrs;
 
 static inline MxV2 mx_v2(float x, float y) { MxV2 v = {x, y}; return v; }
 static inline MxV3 mx_v3(float x, float y, float z) { MxV3 v = {x, y, z}; return v; }
@@ -85,8 +85,8 @@ MxQuat mx_quat_from_mat4(const MxMat4 *m);
 void mx_quat_to_mat4(const MxQuat *q, MxMat4 *m);
 MxV3 mx_quat_rotate(MxQuat q, MxV3 v);
 
-void mx_transform_compose(MxMat4 *out, const MxTransform *t);
-int mx_transform_decompose(MxTransform *out, const MxMat4 *m);
+void mx_transform_compose(MxMat4 *out, const MxTrs *t);
+int mx_transform_decompose(MxTrs *out, const MxMat4 *m);
 
 MxAabb mx_aabb_empty(void);
 MxAabb mx_aabb_from_center(MxV3 center, MxV3 half);

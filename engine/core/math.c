@@ -314,7 +314,7 @@ MxV3 mx_quat_rotate(MxQuat q, MxV3 v)
     return mx_v3_add(v, mx_v3_add(mx_v3_scale(t, q.w), mx_v3_cross(u, t)));
 }
 
-void mx_transform_compose(MxMat4 *out, const MxTransform *t)
+void mx_transform_compose(MxMat4 *out, const MxTrs *t)
 {
     MxMat4 r, s, p;
     mx_quat_to_mat4(&t->rotation, &r);
@@ -324,7 +324,7 @@ void mx_transform_compose(MxMat4 *out, const MxTransform *t)
     mx_mat4_mul(out, &p, &r);
 }
 
-int mx_transform_decompose(MxTransform *out, const MxMat4 *m)
+int mx_transform_decompose(MxTrs *out, const MxMat4 *m)
 {
     const float *a = m->m;
     MxV3 c0 = mx_v3(a[0], a[1], a[2]);

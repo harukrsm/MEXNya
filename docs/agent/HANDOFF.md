@@ -46,6 +46,18 @@ and what the next task needs to know. It follows the task plan supplied with thi
 - `mexnya/agent/log.jsonl` rotates at 10 MB, keeping `log.jsonl.1`.
 - `tests/atomic_test.c` covers a process killed mid-write, concurrent writers and locks.
 
+### T4 · world (in progress)
+
+- `engine/world/world.[ch]`: generational entity handles, a free list, interned-name
+  lookup through a hash chain, sparse-set component storage, parent/child transforms,
+  `mx_world_tick` (prev/current state) and `mx_world_update_transforms`.
+- `engine/world/components.h`: transform, mesh renderer, collider, rigid body, script,
+  audio source, camera, light and sprite layouts.
+- `tests/world_test.c`: 100k entities, reuse and dangling handles, 100k name lookups
+  (under 100 ms), component add/get/remove, and parent/child/grandchild/rotation cases.
+- Not done yet: scene-to-world instantiation, world-to-JSON export, and migrating the
+  sample and template to the world API. The scene runtime still uses the JSON DOM.
+
 ### T3 · fixed timestep
 
 - `EngineConfig` gains `fixed_hz`, `max_catchup` and `pause_on_focus_lost` (appended,
@@ -84,10 +96,11 @@ the same suite.
 
 ## Known gaps
 
-- The roadmap after T3 is not implemented: world/entities (T4), savegames (T5), physics
-  (T6), RGBA8 textures (T7), batching (T8), audio buses (T9), input expansion (T10),
-  assets (T11), Lua components (T12), packaging (T13), play-in-editor (T14), migration
-  guide and performance gates (T15).
+- T4 is partial (world core only): scene instantiation, JSON export and sample migration
+  remain. The roadmap after T4 is not implemented: savegames (T5), physics (T6), RGBA8
+  textures (T7), batching (T8), audio buses (T9), input expansion (T10), assets (T11),
+  Lua components (T12), packaging (T13), play-in-editor (T14), migration guide and
+  performance gates (T15).
 - The Ubuntu CI job is new and has not been run on this machine; it installs the SDL3
   build dependencies and runs the same suite.
 - `str` interning and the tracked allocator are single-threaded by design.

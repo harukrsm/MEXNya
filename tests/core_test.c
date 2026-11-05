@@ -197,7 +197,7 @@ static void test_path(void)
 static void test_math(void)
 {
     MxMat4 t, r, s, trs, inv, ident;
-    MxTransform xf;
+    MxTrs xf;
     xf.translation = mx_v3(1.0f, 2.0f, 3.0f);
     xf.rotation = mx_quat_axis_angle(mx_v3(0.0f, 0.0f, 1.0f), MX_PI * 0.5f);
     xf.scale = mx_v3(2.0f, 2.0f, 2.0f);
@@ -207,7 +207,7 @@ static void test_math(void)
     CHECK_NEAR(p.y, 4.0f, 1e-4f);
     CHECK_NEAR(p.z, 3.0f, 1e-4f);
 
-    MxTransform back;
+    MxTrs back;
     CHECK(mx_transform_decompose(&back, &trs));
     CHECK_NEAR(back.translation.x, 1.0f, 1e-4f);
     CHECK_NEAR(back.translation.y, 2.0f, 1e-4f);

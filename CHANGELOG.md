@@ -18,6 +18,10 @@ All notable changes to MEXNya are recorded here. The format follows
 - `MX_MEM_TRACK` (`-DMEXNYA_MEM_TRACK=ON`) allocation tracking and `mx_mem_report()`.
 - `plat_write_file_atomic`, `plat_try_lock` and `plat_unlock`; `atomic_test` covers crashes
   mid-write, concurrent writers and stale locks.
+- World layer: generational entity handles, interned names with O(1) lookup, sparse-set
+  components (transform, mesh, collider, rigid body, script, audio source, camera, light,
+  sprite), parent/child transforms with world matrices and per-tick interpolation state;
+  `world_test` covers 100k entities, dangling handles, name lookup and hierarchies.
 - Fixed-timestep loop (`fixed_hz`, `max_catchup`, `pause_on_focus_lost`), render interpolation
   alpha, time scaling, a deterministic tick hash and per-phase frame timings. `engine_loop`
   keeps its signature; `engine_loop_ex` and `engine_step` expose the new behaviour, and

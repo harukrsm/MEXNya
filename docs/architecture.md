@@ -11,6 +11,7 @@ and the rules that keep the pieces separable.
 | Core | `engine/core/` — JSON, i18n, PNG writer, memory, containers, paths, math, errors, logging | libc |
 | Platform | `engine/platform/` — lifecycle, clock, files, threads, window, input, audio device | SDL3 (desktop backend only) |
 | Render | `engine/render/` — intent-level API, batching front end, font, models, UI | platform, OpenGL (GL backend only) |
+| World | `engine/world/` — entities, components, transform hierarchy | core |
 | Scene | `engine/scene/` — read-only JSON scenes, drawing, ports | core, render |
 | Audio | `engine/audio/` — software mixer and MP3 decode | platform, minimp3 |
 | Console | `engine/console/` — stdin commands and Lua | platform, Lua |
@@ -43,6 +44,18 @@ same work for an explicit dt, which is how determinism is tested.
 
 Frame phase timings are available from `engine_frame_stats()`; the tick counter and
 FNV-1a tick hash come from `engine_tick_count()` and `engine_tick_hash()`.
+
+## World
+
+`MxWorld` owns entities as `{index, generation}` handles. A generation bump on destroy
+makes stale handles fail `mx_entity_alive` and return `NULL` from `mx_comp_get`. Names
+are interned strings, so a name lookup is one hash and a pointer comparison.
+
+Components live in sparse sets (dense data array plus an entity-indexed sparse array).
+`MxTransform` is stored per entity slot and is always present. Parent links form the
+hierarchy; `mx_world_update_transforms` resolves parents before children in one pass and
+writes `local` and `world` matrices. `mx_world_tick` copies the current transform to the
+`prev_*` fields before the update so rendering can interpolate with the frame alpha.
 
 ## Memory
 
