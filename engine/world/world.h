@@ -30,8 +30,11 @@ int mx_entity_alive(const MxWorld *w, MxEntity e);
 MxEntity mx_entity_find(MxWorld *w, const char *name);
 void mx_entity_set_name(MxWorld *w, MxEntity e, const char *name);
 const char *mx_entity_name(const MxWorld *w, MxEntity e);
+void mx_entity_set_type(MxWorld *w, MxEntity e, const char *type);
+const char *mx_entity_type(const MxWorld *w, MxEntity e);
 int mx_entity_count(const MxWorld *w);
 int mx_entity_capacity(const MxWorld *w);
+MxEntity mx_world_entity_at(const MxWorld *w, int index);
 
 void *mx_comp_add(MxWorld *w, MxEntity e, uint32_t type);
 void *mx_comp_get(const MxWorld *w, MxEntity e, uint32_t type);

@@ -20,6 +20,7 @@ struct MxWorld {
     uint32_t *gen;
     unsigned char *alive;
     const char **names;
+    const char **types;
     uint64_t *name_hash;
     int *name_next;
     MxTransform *tr;
@@ -71,13 +72,15 @@ static int world_grow(MxWorld *w, int need)
     uint32_t *gen = (uint32_t *)mx_mem_calloc((size_t)cap, sizeof(*gen));
     unsigned char *alive = (unsigned char *)mx_mem_calloc((size_t)cap, 1);
     const char **names = (const char **)mx_mem_calloc((size_t)cap, sizeof(*names));
+    const char **types = (const char **)mx_mem_calloc((size_t)cap, sizeof(*types));
     uint64_t *hashes = (uint64_t *)mx_mem_calloc((size_t)cap, sizeof(*hashes));
     int *next = (int *)mx_mem_alloc(sizeof(int) * (size_t)cap);
     MxTransform *tr = (MxTransform *)mx_mem_calloc((size_t)cap, sizeof(*tr));
-    if (!gen || !alive || !names || !hashes || !next || !tr) {
+    if (!gen || !alive || !names || !types || !hashes || !next || !tr) {
         mx_mem_free(gen);
         mx_mem_free(alive);
         mx_mem_free(names);
+        mx_mem_free(types);
         mx_mem_free(hashes);
         mx_mem_free(next);
         mx_mem_free(tr);
@@ -91,6 +94,7 @@ static int world_grow(MxWorld *w, int need)
         memcpy(gen, w->gen, sizeof(uint32_t) * (size_t)w->cap);
         memcpy(alive, w->alive, (size_t)w->cap);
         memcpy(names, w->names, sizeof(char *) * (size_t)w->cap);
+        memcpy(types, w->types, sizeof(char *) * (size_t)w->cap);
         memcpy(hashes, w->name_hash, sizeof(uint64_t) * (size_t)w->cap);
         memcpy(next, w->name_next, sizeof(int) * (size_t)w->cap);
         memcpy(tr, w->tr, sizeof(MxTransform) * (size_t)w->cap);
@@ -98,12 +102,14 @@ static int world_grow(MxWorld *w, int need)
     mx_mem_free(w->gen);
     mx_mem_free(w->alive);
     mx_mem_free(w->names);
+    mx_mem_free(w->types);
     mx_mem_free(w->name_hash);
     mx_mem_free(w->name_next);
     mx_mem_free(w->tr);
     w->gen = gen;
     w->alive = alive;
     w->names = names;
+    w->types = types;
     w->name_hash = hashes;
     w->name_next = next;
     w->tr = tr;
@@ -188,6 +194,7 @@ void mx_world_destroy(MxWorld *w)
     mx_mem_free(w->gen);
     mx_mem_free(w->alive);
     mx_mem_free(w->names);
+    mx_mem_free(w->types);
     mx_mem_free(w->name_hash);
     mx_mem_free(w->name_next);
     mx_mem_free(w->tr);
@@ -223,6 +230,7 @@ MxEntity mx_entity_create(MxWorld *w)
     w->alive[index] = 1;
     w->count++;
     w->names[index] = NULL;
+    w->types[index] = NULL;
     w->name_hash[index] = 0;
     w->name_next[index] = -1;
     transform_init(&w->tr[index]);
@@ -291,6 +299,19 @@ const char *mx_entity_name(const MxWorld *w, MxEntity e)
     return n ? n : "";
 }
 
+void mx_entity_set_type(MxWorld *w, MxEntity e, const char *type)
+{
+    if (!mx_entity_alive(w, e)) return;
+    w->types[e.index] = type && type[0] ? mx_str_intern(type) : NULL;
+}
+
+const char *mx_entity_type(const MxWorld *w, MxEntity e)
+{
+    if (!mx_entity_alive(w, e)) return "";
+    const char *t = w->types[e.index];
+    return t ? t : "";
+}
+
 MxEntity mx_entity_find(MxWorld *w, const char *name)
 {
     MxEntity none = MX_ENTITY_NONE;
@@ -311,6 +332,13 @@ MxEntity mx_entity_find(MxWorld *w, const char *name)
 
 int mx_entity_count(const MxWorld *w) { return w ? w->count : 0; }
 int mx_entity_capacity(const MxWorld *w) { return w ? w->cap : 0; }
+
+MxEntity mx_world_entity_at(const MxWorld *w, int index)
+{
+    if (!w || index < 0 || index >= w->cap || !w->alive[index]) return MX_ENTITY_NONE;
+    MxEntity e = {(uint32_t)index, w->gen[index]};
+    return e;
+}
 
 void *mx_comp_add(MxWorld *w, MxEntity e, uint32_t type)
 {

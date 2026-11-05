@@ -57,6 +57,11 @@ hierarchy; `mx_world_update_transforms` resolves parents before children in one 
 writes `local` and `world` matrices. `mx_world_tick` copies the current transform to the
 `prev_*` fields before the update so rendering can interpolate with the frame alpha.
 
+`mx_world_from_scene` builds a world from an editor scene document: object types become
+mesh, light or sprite components, `pos/rot/scale` become the transform, and colours are
+converted from `#RRGGBB`. `mx_world_to_json` is the inverse. The editor's rotation
+convention is `Ry * Rx * Rz`, so instantiation multiplies quaternions in that order.
+
 ## Memory
 
 - `MxArena` hands out aligned slices and grows by adding blocks; `mx_arena_reset`

@@ -1,11 +1,13 @@
 #include "engine/world/world.h"
 #include "engine/world/components.h"
+#include "engine/world/instantiate.h"
 #include "engine/core/mem.h"
 #include "engine/core/str.h"
 #include "engine/platform/platform.h"
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int s_failures;
@@ -192,6 +194,111 @@ static void test_hierarchy(void)
     mx_world_destroy(w);
 }
 
+static void test_instantiate(void)
+{
+    const char *text = "{\"kind\":\"3d\",\"objects\":["
+        "{\"id\":\"ground\",\"type\":\"plane\",\"pos\":[0,0,0],\"scale\":[24,1,24],\"color\":\"#6E7277\"},"
+        "{\"id\":\"player\",\"type\":\"box\",\"pos\":[1,2,3],\"rot\":[0,90,0],\"color\":\"#4C8DDB\"},"
+        "{\"id\":\"ball\",\"type\":\"sphere\",\"pos\":[2,1,4],\"scale\":[1.5,1.5,1.5]},"
+        "{\"id\":\"ship\",\"type\":\"model\",\"model\":\"assets/ship.mcm\"},"
+        "{\"id\":\"lamp\",\"type\":\"light\",\"pos\":[2,4,2],\"color\":\"#FFF2D8\"},"
+        "{\"id\":\"title\",\"type\":\"text\",\"rect\":[10,20,300,16],\"color\":\"#F2F3F5\",\"text\":\"hello\"}"
+        "]}";
+    char err[128];
+    Json *doc = json_parse(text, err, sizeof(err));
+    CHECK(doc != NULL);
+    if (!doc) return;
+    MxWorld *w = mx_world_from_scene(doc);
+    CHECK(w != NULL && mx_entity_count(w) == 6);
+    if (!w) {
+        json_free(doc);
+        return;
+    }
+    MxEntity ground = mx_entity_find(w, "ground");
+    MxEntity player = mx_entity_find(w, "player");
+    MxEntity ship = mx_entity_find(w, "ship");
+    MxEntity lamp = mx_entity_find(w, "lamp");
+    MxEntity title = mx_entity_find(w, "title");
+    CHECK(mx_entity_alive(w, ground));
+    CHECK(mx_entity_alive(w, player));
+    CHECK(mx_entity_alive(w, ship));
+    CHECK(mx_entity_alive(w, lamp));
+    CHECK(mx_entity_alive(w, title));
+
+    MxTransform *pt = (MxTransform *)mx_comp_get(w, player, MX_COMP_TRANSFORM);
+    CHECK(pt != NULL);
+    if (pt) {
+        CHECK_NEAR(pt->position.x, 1.0f, 1e-5f);
+        CHECK_NEAR(pt->position.y, 2.0f, 1e-5f);
+        CHECK_NEAR(pt->position.z, 3.0f, 1e-5f);
+        MxV3 fwd = mx_quat_rotate(pt->rotation, mx_v3(1.0f, 0.0f, 0.0f));
+        CHECK_NEAR(fwd.x, 0.0f, 1e-5f);
+        CHECK_NEAR(fwd.z, -1.0f, 1e-5f);
+    }
+    MxMeshRenderer *pm = (MxMeshRenderer *)mx_comp_get(w, player, MX_COMP_MESH);
+    CHECK(pm && pm->mesh == MX_MESH_BOX && pm->tint == 0xFFDB8D4Cu);
+    MxMeshRenderer *gm = (MxMeshRenderer *)mx_comp_get(w, ground, MX_COMP_MESH);
+    CHECK(gm && gm->mesh == MX_MESH_PLANE);
+    MxMeshRenderer *sm = (MxMeshRenderer *)mx_comp_get(w, ship, MX_COMP_MESH);
+    CHECK(sm && sm->mesh == MX_MESH_MODEL && sm->asset && strcmp(sm->asset, "assets/ship.mcm") == 0);
+    MxLight *light = (MxLight *)mx_comp_get(w, lamp, MX_COMP_LIGHT);
+    CHECK(light != NULL);
+    if (light) {
+        CHECK_NEAR(light->color.x, 1.0f, 0.01f);
+        CHECK_NEAR(light->color.y, 0.949f, 0.01f);
+    }
+    MxSprite *sprite = (MxSprite *)mx_comp_get(w, title, MX_COMP_SPRITE);
+    CHECK(sprite && sprite->kind == MX_SPRITE_TEXT);
+    if (sprite) {
+        CHECK(sprite->text && strcmp(sprite->text, "hello") == 0);
+        CHECK_NEAR(sprite->rect[2], 300.0f, 1e-5f);
+    }
+
+    Json *out = mx_world_to_json(w);
+    CHECK(out != NULL);
+    char *written = out ? json_write(out, 0) : NULL;
+    CHECK(written != NULL);
+    Json *again = written ? json_parse(written, err, sizeof(err)) : NULL;
+    CHECK(again != NULL);
+    if (again) {
+        MxWorld *w2 = mx_world_from_scene(again);
+        CHECK(w2 && mx_entity_count(w2) == 6);
+        MxEntity p2 = mx_entity_find(w2, "player");
+        MxTransform *t2 = (MxTransform *)mx_comp_get(w2, p2, MX_COMP_TRANSFORM);
+        CHECK(t2 != NULL);
+        if (t2) {
+            CHECK_NEAR(t2->position.x, 1.0f, 1e-5f);
+            CHECK_NEAR(t2->position.y, 2.0f, 1e-5f);
+            CHECK_NEAR(t2->position.z, 3.0f, 1e-5f);
+            MxV3 fwd = mx_quat_rotate(t2->rotation, mx_v3(1.0f, 0.0f, 0.0f));
+            CHECK_NEAR(fwd.z, -1.0f, 1e-3f);
+        }
+        MxSprite *s2 = (MxSprite *)mx_comp_get(w2, mx_entity_find(w2, "title"), MX_COMP_SPRITE);
+        CHECK(s2 && s2->text && strcmp(s2->text, "hello") == 0);
+        CHECK(mx_comp_get(w2, mx_entity_find(w2, "lamp"), MX_COMP_LIGHT) != NULL);
+        mx_world_destroy(w2);
+    }
+    json_free(again);
+    free(written);
+    json_free(out);
+    mx_world_destroy(w);
+    json_free(doc);
+
+    if (plat_file_exists("samples/hello/mexnya/scenes/main.json")) {
+        Json *sample = json_load("samples/hello/mexnya/scenes/main.json", err, sizeof(err));
+        CHECK(sample != NULL);
+        if (sample) {
+            MxWorld *sw = mx_world_from_scene(sample);
+            CHECK(sw && mx_entity_count(sw) == 6);
+            MxTransform *st = (MxTransform *)mx_comp_get(sw, mx_entity_find(sw, "player"), MX_COMP_TRANSFORM);
+            CHECK(st && st->position.y == 0.5f);
+            CHECK(mx_comp_get(sw, mx_entity_find(sw, "light"), MX_COMP_LIGHT) != NULL);
+            mx_world_destroy(sw);
+            json_free(sample);
+        }
+    }
+}
+
 int main(void)
 {
 #ifdef MX_MEM_TRACK
@@ -201,6 +308,7 @@ int main(void)
     test_names();
     test_components();
     test_hierarchy();
+    test_instantiate();
     mx_str_intern_shutdown();
 #ifdef MX_MEM_TRACK
     CHECK(mx_mem_live_blocks() == base);

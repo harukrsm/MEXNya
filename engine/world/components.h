@@ -14,11 +14,21 @@ typedef struct {
     int dirty;
 } MxTransform;
 
+typedef enum {
+    MX_MESH_BOX = 0,
+    MX_MESH_PLANE,
+    MX_MESH_SPHERE,
+    MX_MESH_CYLINDER,
+    MX_MESH_CONE,
+    MX_MESH_MODEL
+} MxMeshKind;
+
 typedef struct {
     int mesh;
     int material;
     uint32_t tint;
     int layer;
+    const char *asset;
 } MxMeshRenderer;
 
 typedef enum { MX_BODY_STATIC = 0, MX_BODY_DYNAMIC, MX_BODY_KINEMATIC } MxBodyType;
@@ -60,11 +70,22 @@ typedef struct {
     float intensity, range;
 } MxLight;
 
+typedef enum {
+    MX_SPRITE_RECT = 0,
+    MX_SPRITE_PANEL,
+    MX_SPRITE_BUTTON,
+    MX_SPRITE_TEXT,
+    MX_SPRITE_IMAGE
+} MxSpriteKind;
+
 typedef struct {
+    int kind;
     int texture;
     uint32_t color;
     int layer;
-    float width, height;
+    float rect[4];
+    const char *text;
+    const char *image;
 } MxSprite;
 
 #endif

@@ -53,10 +53,15 @@ and what the next task needs to know. It follows the task plan supplied with thi
   `mx_world_tick` (prev/current state) and `mx_world_update_transforms`.
 - `engine/world/components.h`: transform, mesh renderer, collider, rigid body, script,
   audio source, camera, light and sprite layouts.
+- `engine/world/instantiate.[ch]`: `mx_world_from_scene` maps every editor object type
+  (box/plane/sphere/cylinder/cone/model/light/rect/panel/button/text/image);
+  `mx_world_to_json` writes the same fields back, including the editor's Ry*Rx*Rz
+  rotation convention.
 - `tests/world_test.c`: 100k entities, reuse and dangling handles, 100k name lookups
-  (under 100 ms), component add/get/remove, and parent/child/grandchild/rotation cases.
-- Not done yet: scene-to-world instantiation, world-to-JSON export, and migrating the
-  sample and template to the world API. The scene runtime still uses the JSON DOM.
+  (under 100 ms), component add/get/remove, parent/child/grandchild/rotation cases, and
+  scene → world → JSON → world round-trips (embedded scene and `samples/hello`).
+- Not done yet: a world renderer and migrating the sample and template off the JSON DOM.
+  The scene runtime still draws from JSON.
 
 ### T3 · fixed timestep
 
