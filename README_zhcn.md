@@ -109,6 +109,9 @@ cmake --build build/release -j"$(sysctl -n hw.ncpu)"
 ./build/release/samples/hello/hello
 ```
 
+CMake 3.23 及以上也可以用预设：`cmake --preset dev`、`cmake --build --preset dev`
+（或 `release`）。
+
 同一份源码可在 Intel 与 Apple Silicon 上构建，CMake 使用本机架构。若机器无法联网，
 可用 `-DMEXNYA_SDL3_DIR=/path/to/SDL` 指向本地的 SDL3 源码。
 

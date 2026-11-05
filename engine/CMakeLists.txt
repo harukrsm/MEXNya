@@ -15,6 +15,7 @@ endif()
 set(MEXNYA_ROOT ${CMAKE_CURRENT_LIST_DIR}/.. CACHE INTERNAL "")
 option(MEXNYA_OPENGL "Build the OpenGL 3.3 renderer" ON)
 option(MEXNYA_MEM_TRACK "Track engine allocations for leak reports" OFF)
+option(MEXNYA_WERROR "Treat engine warnings as errors" OFF)
 set(MEXNYA_SDL3_DIR "" CACHE PATH "SDL3 source tree to use instead of an installed or downloaded SDL3")
 set(MEXNYA_SDL3_TAG "release-3.2.28" CACHE STRING "SDL3 release FetchContent downloads")
 
@@ -68,7 +69,46 @@ if(NOT TARGET mexnya_lua)
 endif()
 
 # ---------------------------------------------------------------- engine
-file(GLOB_RECURSE MEXNYA_ENGINE_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_LIST_DIR}/*.c)
+set(MEXNYA_ENGINE_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/audio/audio.c
+    ${CMAKE_CURRENT_LIST_DIR}/console/console.c
+    ${CMAKE_CURRENT_LIST_DIR}/console/lua_console.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/error.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/i18n.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/json.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/log.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/map.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/math.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/mem.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/path.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/png.c
+    ${CMAKE_CURRENT_LIST_DIR}/core/str.c
+    ${CMAKE_CURRENT_LIST_DIR}/engine.c
+    ${CMAKE_CURRENT_LIST_DIR}/game/save.c
+    ${CMAKE_CURRENT_LIST_DIR}/game/settings.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/desktop/clock.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/desktop/file.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/desktop/input_desktop.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/desktop/plat_desktop.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/desktop/sysfont.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/desktop/system.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/replay.c
+    ${CMAKE_CURRENT_LIST_DIR}/platform/screenshot.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/debug_overlay.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/font.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/gfx.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/gl/gl_render.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/gl/gl_stub.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/model.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/render_dispatch.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/soft/soft_render.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/solid.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/text.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/ui.c
+    ${CMAKE_CURRENT_LIST_DIR}/scene/scene.c
+    ${CMAKE_CURRENT_LIST_DIR}/world/instantiate.c
+    ${CMAKE_CURRENT_LIST_DIR}/world/world.c
+)
 add_library(mexnya_engine STATIC ${MEXNYA_ENGINE_SOURCES})
 add_library(mexnya::engine ALIAS mexnya_engine)
 set_target_properties(mexnya_engine PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON)
@@ -89,6 +129,9 @@ target_include_directories(mexnya_engine PUBLIC ${MEXNYA_ROOT}
 target_link_libraries(mexnya_engine PUBLIC ${MEXNYA_SDL} mexnya_lua)
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(mexnya_engine PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers)
+    if(MEXNYA_WERROR)
+        target_compile_options(mexnya_engine PRIVATE -Werror)
+    endif()
 endif()
 if(APPLE)
     target_link_libraries(mexnya_engine PUBLIC "-framework Foundation" "-framework CoreFoundation"

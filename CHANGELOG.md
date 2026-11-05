@@ -8,6 +8,8 @@ All notable changes to MEXNya are recorded here. The format follows
 
 ### Added
 
+- Explicit engine source lists (no configure-time globbing), `CMakePresets.json` for
+  `dev`/`release`/`ci`, and a `MEXNYA_WERROR` option that CI turns on.
 - Continuous integration for macOS and Ubuntu: configure, build and `scripts/test.sh`.
 - `.clang-format` matching the project style, for new and edited code.
 - `CONTRIBUTING.md`, `SECURITY.md` and this changelog.

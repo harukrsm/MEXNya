@@ -113,6 +113,9 @@ cmake --build build/release -j"$(sysctl -n hw.ncpu)"
 ./build/release/samples/hello/hello
 ```
 
+CMake presets cover the same configurations with CMake 3.23 or newer:
+`cmake --preset dev` and `cmake --build --preset dev` (or `release`).
+
 The same source builds for Intel and Apple Silicon; CMake targets the host
 architecture. If the machine cannot reach the network, pass an SDL3 source tree with
 `-DMEXNYA_SDL3_DIR=/path/to/SDL`.

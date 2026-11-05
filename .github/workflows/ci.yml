@@ -25,7 +25,7 @@ jobs:
           key: macos-debug-${{ hashFiles('CMakeLists.txt', 'engine/CMakeLists.txt', 'editor/CMakeLists.txt', 'tests/CMakeLists.txt', 'samples/**/CMakeLists.txt') }}
           restore-keys: macos-debug-
       - name: Configure
-        run: cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -DMEXNYA_WERROR=ON
       - name: Build
         run: cmake --build build/debug -j"$(sysctl -n hw.ncpu)"
       - name: Test
@@ -53,7 +53,7 @@ jobs:
           key: linux-debug-${{ hashFiles('CMakeLists.txt', 'engine/CMakeLists.txt', 'editor/CMakeLists.txt', 'tests/CMakeLists.txt', 'samples/**/CMakeLists.txt') }}
           restore-keys: linux-debug-
       - name: Configure
-        run: cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -DMEXNYA_WERROR=ON
       - name: Build
         run: cmake --build build/debug -j"$(nproc)"
       - name: Test
