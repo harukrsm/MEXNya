@@ -236,6 +236,26 @@ MxQuat mx_quat_axis_angle(MxV3 axis, float radians)
     return q;
 }
 
+MxQuat mx_quat_from_euler(MxV3 degrees)
+{
+    MxQuat qx = mx_quat_axis_angle(mx_v3(1.0f, 0.0f, 0.0f), degrees.x * MX_DEG2RAD);
+    MxQuat qy = mx_quat_axis_angle(mx_v3(0.0f, 1.0f, 0.0f), degrees.y * MX_DEG2RAD);
+    MxQuat qz = mx_quat_axis_angle(mx_v3(0.0f, 0.0f, 1.0f), degrees.z * MX_DEG2RAD);
+    return mx_quat_mul(mx_quat_mul(qy, qx), qz);
+}
+
+MxV3 mx_quat_to_euler(MxQuat q)
+{
+    MxMat4 m;
+    float sx;
+    mx_quat_to_mat4(&q, &m);
+    sx = -m.m[9];
+    if (sx > 1.0f) sx = 1.0f;
+    if (sx < -1.0f) sx = -1.0f;
+    return mx_v3(asinf(sx) / MX_DEG2RAD, atan2f(m.m[8], m.m[10]) / MX_DEG2RAD,
+                 atan2f(m.m[1], m.m[5]) / MX_DEG2RAD);
+}
+
 MxQuat mx_quat_mul(MxQuat a, MxQuat b)
 {
     MxQuat q = {a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,

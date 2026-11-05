@@ -1,9 +1,9 @@
 // __GAME_NAME__: a MEXNya game. Start here.
 //
-// The scenes in mexnya/ are made with the MEXNya Editor (`mexnya run`); this file loads
-// them with the scene runtime and adds the game: move the "player" object with WASD or
-// the left stick, jump with Space, press E to fire the "main.use" port (a Line shows the
-// "hud" scene), Escape to quit.
+// The scenes in mexnya/ are made with the MEXNya Editor (`mexnya run`); this file
+// instantiates the main scene into the world runtime and adds the game: move the
+// "player" entity with WASD or the left stick, jump with Space, press E to fire the
+// "main.use" port (a Line shows the "hud" scene), Escape to quit.
 #include "engine/engine.h"
 #include "engine/platform/platform.h"
 #include "engine/platform/input.h"
@@ -14,6 +14,10 @@
 #include "engine/render/font.h"
 #include "engine/render/render_api.h"
 #include "engine/scene/scene.h"
+#include "engine/world/components.h"
+#include "engine/world/draw.h"
+#include "engine/world/instantiate.h"
+#include "engine/world/world.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -23,6 +27,8 @@
 typedef struct {
     MxProject *project;
     int main_scene;
+    MxWorld *world;
+    MxEntity player;
     MxCamera cam;
     float vy;            // player's vertical speed
     float heading;       // degrees
@@ -43,29 +49,25 @@ static void update(float dt, void *user)
     Input in;
     input_get_last(&in);
     if (in.pressed & ACT_BIT(ACT_BACK)) engine_request_quit();
-    Json *player = mx_object(g->project, g->main_scene, "player");
+    MxTransform *player = (MxTransform *)mx_comp_get(g->world, g->player, MX_COMP_TRANSFORM);
     if (!player) return;
-    float pos[3] = {0, 0.5f, 0};
-    json_getv(player, "pos", pos, 3);
-    // Move relative to the camera: forward is away from the viewer.
     float yaw = g->cam.yaw * 0.017453293f;
     float speed = (in.held & ACT_BIT(ACT_SPRINT)) ? 8.0f : 4.0f;
     float fx = -sinf(yaw), fz = -cosf(yaw), rx = cosf(yaw), rz = -sinf(yaw);
     float mx = in.move_x * speed * dt, mz = -in.move_y * speed * dt;
-    pos[0] += fx * mz + rx * mx;
-    pos[2] += fz * mz + rz * mx;
+    player->position.x += fx * mz + rx * mx;
+    player->position.z += fz * mz + rz * mx;
     if (mx != 0 || mz != 0) g->heading = atan2f(fx * mz + rx * mx, fz * mz + rz * mx) * 57.29578f;
-    // Jump and fall back to the ground (y = 0.5 for a unit cube).
-    if ((in.pressed & ACT_BIT(ACT_JUMP)) && pos[1] <= 0.5f) g->vy = 6.0f;
+    if ((in.pressed & ACT_BIT(ACT_JUMP)) && player->position.y <= 0.5f) g->vy = 6.0f;
     g->vy -= 18.0f * dt;
-    pos[1] += g->vy * dt;
-    if (pos[1] < 0.5f) { pos[1] = 0.5f; g->vy = 0; }
-    json_setv(player, "pos", pos, 3);
-    float rot[3] = {0, g->heading, 0};
-    json_setv(player, "rot", rot, 3);
+    player->position.y += g->vy * dt;
+    if (player->position.y < 0.5f) { player->position.y = 0.5f; g->vy = 0; }
+    player->rotation = mx_quat_from_euler(mx_v3(0.0f, g->heading, 0.0f));
     if (in.pressed & ACT_BIT(ACT_USE)) mx_emit(g->project, "main.use");
-    // The camera follows the player.
-    for (int i = 0; i < 3; i++) g->cam.target[i] += (pos[i] - g->cam.target[i]) * (1.0f - expf(-6.0f * dt));
+    for (int i = 0; i < 3; i++) {
+        float target = i == 0 ? player->position.x : i == 1 ? player->position.y : player->position.z;
+        g->cam.target[i] += (target - g->cam.target[i]) * (1.0f - expf(-6.0f * dt));
+    }
 }
 
 static void draw(void *user)
@@ -73,7 +75,11 @@ static void draw(void *user)
     Game *g = (Game *)user;
     int w = 0, h = 0;
     r_ui_size(&w, &h);
-    mx_project_draw(g->project, &g->cam, w, h);  // 3D layers, then the 2D layers
+    if (mx_scene_visible(g->project, g->main_scene)) {
+        mx_camera_apply(&g->cam, w, h);
+        mx_world_draw_3d(g->world);
+    }
+    mx_project_draw_2d(g->project, w, h);
     font_drawf(12, h - 28, 0xC8CBD0, "WASD move  Space jump  E use (%d)  Esc quit", g->uses);
 }
 
@@ -112,6 +118,16 @@ int main(int argc, char **argv)
     g.main_scene = mx_scene_find(g.project, "main");
     mx_scene_camera(g.project, g.main_scene, &g.cam);
     mx_on_port(g.project, on_port, &g);
+    Json *scene_doc = mx_scene_doc(g.project, g.main_scene);
+    g.world = mx_world_from_scene(scene_doc);
+    g.player = mx_entity_find(g.world, "player");
+    if (!g.world || !mx_entity_alive(g.world, g.player)) {
+        fprintf(stderr, "cannot instantiate the main scene\n");
+        mx_world_destroy(g.world);
+        mx_project_free(g.project);
+        engine_shutdown();
+        return 1;
+    }
     gfx_set_fog(500, 1000, 0x3A3D42);            // the clear colour
     engine_loop(update, draw, &g, frames);
     if (shot) {
@@ -124,6 +140,7 @@ int main(int argc, char **argv)
             free(fb);
         }
     }
+    mx_world_destroy(g.world);
     mx_project_free(g.project);
     engine_shutdown();
     return 0;

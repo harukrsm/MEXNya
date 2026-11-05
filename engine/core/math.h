@@ -79,6 +79,8 @@ MxV4 mx_mat4_mul_vec4(const MxMat4 *m, MxV4 v);
 
 MxQuat mx_quat_identity(void);
 MxQuat mx_quat_axis_angle(MxV3 axis, float radians);
+MxQuat mx_quat_from_euler(MxV3 degrees);
+MxV3 mx_quat_to_euler(MxQuat q);
 MxQuat mx_quat_mul(MxQuat a, MxQuat b);
 MxQuat mx_quat_normalize(MxQuat q);
 MxQuat mx_quat_from_mat4(const MxMat4 *m);

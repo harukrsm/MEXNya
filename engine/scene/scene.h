@@ -43,6 +43,7 @@ void mx_scene_draw_2d(MxProject *p, int scene, int x, int y, float scale);
 // Draws every visible scene in layer order: 3D layers with cam (call in the 3D pass),
 // then switches to the 2D pass and draws 2D layers fitted to w x h points.
 void mx_project_draw(MxProject *p, const MxCamera *cam, int w, int h);
+void mx_project_draw_2d(MxProject *p, int w, int h);
 
 // Lines and Tunnels. mx_emit("scene.port") fires a port: every Line leaving it fires the
 // port at its other end; a Tunnel passes what arrives on a port on to the Lines leaving

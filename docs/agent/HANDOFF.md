@@ -57,11 +57,21 @@ and what the next task needs to know. It follows the task plan supplied with thi
   (box/plane/sphere/cylinder/cone/model/light/rect/panel/button/text/image);
   `mx_world_to_json` writes the same fields back, including the editor's Ry*Rx*Rz
   rotation convention.
+- `engine/render/primitives.[ch]`: the primitive meshes and flat lighting moved out of
+  `scene.c`, shared by the scene and world renderers. The hello screenshot is byte-identical
+  before and after the move.
+- `engine/world/draw.[ch]`: `mx_world_draw_3d` (primitives and cached .mcm models) and
+  `mx_world_draw_2d` (rect/panel/button/text sprites).
+- `scene.[ch]` gains `mx_project_draw_2d`, so a game can draw its own 3D and still get the
+  2D layers.
+- `samples/hello` and `templates/game` instantiate the main scene into a world, drive the
+  player's `MxTransform`, and draw the world. The rendered frame matches the previous
+  scene-rendered frame exactly (0 differing pixels at 1280×720).
 - `tests/world_test.c`: 100k entities, reuse and dangling handles, 100k name lookups
   (under 100 ms), component add/get/remove, parent/child/grandchild/rotation cases, and
   scene → world → JSON → world round-trips (embedded scene and `samples/hello`).
-- Not done yet: a world renderer and migrating the sample and template off the JSON DOM.
-  The scene runtime still draws from JSON.
+- Scene fog settings are not part of the world; the sample keeps fog disabled. A future
+  world camera/settings component should carry them.
 
 ### T5 · savegames and settings
 
@@ -114,8 +124,6 @@ the same suite.
 
 ## Known gaps
 
-- T4 is partial: scene instantiation and JSON export exist, but there is no world
-  renderer and the sample/template still drive the scene JSON DOM.
 - Not implemented: physics (T6), RGBA8 textures (T7), batching (T8), audio buses (T9),
   input expansion (T10), assets (T11), Lua components (T12), packaging (T13),
   play-in-editor (T14), migration guide and performance gates (T15).

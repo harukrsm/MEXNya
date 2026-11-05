@@ -4,6 +4,7 @@
 #include "engine/render/font.h"
 #include "engine/render/ui.h"
 #include "engine/render/gfx.h"
+#include "engine/render/primitives.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -125,66 +126,6 @@ void mx_camera_apply(const MxCamera *c, int w, int h)
     r_load_identity();
 }
 
-// ---------------------------------------------------------------- primitives
-typedef struct { float p[3], n[3]; } PV;
-#define PRIM_MAX 600
-typedef struct { PV v[PRIM_MAX]; int n; } Mesh;
-enum { P_BOX, P_PLANE, P_SPHERE, P_CYL, P_CONE, P_COUNT };
-static Mesh s_mesh[P_COUNT];
-static RVertex s_buf[PRIM_MAX];
-
-static void v3(float *o, float x, float y, float z) { o[0] = x; o[1] = y; o[2] = z; }
-
-static void tri(Mesh *m, const float *a, const float *b, const float *c)
-{
-    if (m->n + 3 > PRIM_MAX) return;
-    float e1[3] = {b[0] - a[0], b[1] - a[1], b[2] - a[2]}, e2[3] = {c[0] - a[0], c[1] - a[1], c[2] - a[2]};
-    float n[3] = {e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]};
-    float l = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-    if (l > 0) { n[0] /= l; n[1] /= l; n[2] /= l; }
-    const float *pts[3] = {a, b, c};
-    for (int i = 0; i < 3; i++, m->n++) {
-        memcpy(m->v[m->n].p, pts[i], 12);
-        memcpy(m->v[m->n].n, n, 12);
-    }
-}
-
-static void quad(Mesh *m, const float *a, const float *b, const float *c, const float *d) { tri(m, a, b, c); tri(m, a, c, d); }
-
-static void build(void)
-{
-    if (s_mesh[P_BOX].n) return;
-    float c[8][3];
-    for (int i = 0; i < 8; i++) v3(c[i], (i & 1) ? 0.5f : -0.5f, (i & 2) ? 0.5f : -0.5f, (i & 4) ? 0.5f : -0.5f);
-    Mesh *b = &s_mesh[P_BOX];
-    quad(b, c[0], c[2], c[3], c[1]); quad(b, c[4], c[5], c[7], c[6]); quad(b, c[0], c[4], c[6], c[2]);
-    quad(b, c[1], c[3], c[7], c[5]); quad(b, c[2], c[6], c[7], c[3]); quad(b, c[0], c[1], c[5], c[4]);
-    float p0[3] = {-0.5f, 0, -0.5f}, p1[3] = {0.5f, 0, -0.5f}, p2[3] = {0.5f, 0, 0.5f}, p3[3] = {-0.5f, 0, 0.5f};
-    quad(&s_mesh[P_PLANE], p0, p3, p2, p1);
-    const int SEG = 10, RING = 6;
-    for (int r = 0; r < RING; r++)
-        for (int s = 0; s < SEG; s++) {
-            float a0 = 6.2831853f * s / SEG, a1 = 6.2831853f * (s + 1) / SEG;
-            float t0 = 3.14159265f * r / RING - 1.5707963f, t1 = 3.14159265f * (r + 1) / RING - 1.5707963f;
-            float q[4][3];
-            v3(q[0], cosf(t0) * cosf(a0) * 0.5f, sinf(t0) * 0.5f, cosf(t0) * sinf(a0) * 0.5f);
-            v3(q[1], cosf(t0) * cosf(a1) * 0.5f, sinf(t0) * 0.5f, cosf(t0) * sinf(a1) * 0.5f);
-            v3(q[2], cosf(t1) * cosf(a1) * 0.5f, sinf(t1) * 0.5f, cosf(t1) * sinf(a1) * 0.5f);
-            v3(q[3], cosf(t1) * cosf(a0) * 0.5f, sinf(t1) * 0.5f, cosf(t1) * sinf(a0) * 0.5f);
-            quad(&s_mesh[P_SPHERE], q[0], q[3], q[2], q[1]);
-        }
-    for (int s = 0; s < SEG; s++) {
-        float a0 = 6.2831853f * s / SEG, a1 = 6.2831853f * (s + 1) / SEG;
-        float b0[3] = {cosf(a0) * 0.5f, -0.5f, sinf(a0) * 0.5f}, b1[3] = {cosf(a1) * 0.5f, -0.5f, sinf(a1) * 0.5f};
-        float t0[3] = {b0[0], 0.5f, b0[2]}, t1[3] = {b1[0], 0.5f, b1[2]}, top[3] = {0, 0.5f, 0}, bot[3] = {0, -0.5f, 0};
-        quad(&s_mesh[P_CYL], b0, t0, t1, b1);
-        tri(&s_mesh[P_CYL], top, t1, t0);
-        tri(&s_mesh[P_CYL], bot, b0, b1);
-        tri(&s_mesh[P_CONE], b0, top, b1);
-        tri(&s_mesh[P_CONE], bot, b0, b1);
-    }
-}
-
 static unsigned int parse_rgb(const char *s, unsigned int def)
 {
     if (!s) return def;
@@ -238,40 +179,19 @@ static void draw_object(const Json *o)
         r_load_identity();
         return;
     }
-    int k = !strcmp(t, "plane") ? P_PLANE : !strcmp(t, "sphere") ? P_SPHERE : !strcmp(t, "cylinder") ? P_CYL
-          : !strcmp(t, "cone") ? P_CONE : P_BOX;
-    const Mesh *m = &s_mesh[k];
+    RShape shape = !strcmp(t, "plane") ? R_SHAPE_PLANE : !strcmp(t, "sphere") ? R_SHAPE_SPHERE
+                  : !strcmp(t, "cylinder") ? R_SHAPE_CYLINDER : !strcmp(t, "cone") ? R_SHAPE_CONE
+                  : R_SHAPE_BOX;
     unsigned int rgb = parse_rgb(json_gets(o, "color", NULL), 0xB4B8BE);
-    // R = Ry * Rx * Rz, the editor's convention.
-    float cx = cosf(rot[0] * DEG), sx = sinf(rot[0] * DEG), cy = cosf(rot[1] * DEG), sy = sinf(rot[1] * DEG);
-    float cz = cosf(rot[2] * DEG), sz = sinf(rot[2] * DEG);
-    float R[9] = {cy * cz + sy * sx * sz, -cy * sz + sy * sx * cz, sy * cx,
-                  cx * sz, cx * cz, -sx,
-                  -sy * cz + cy * sx * sz, sy * sz + cy * sx * cz, cy * cx};
-    static const float L[3] = {0.42f, 0.81f, 0.40f};
-    for (int i = 0; i < m->n; i++) {
-        float lp[3] = {m->v[i].p[0] * sc[0], m->v[i].p[1] * sc[1], m->v[i].p[2] * sc[2]};
-        float ln[3] = {m->v[i].n[0] / sc[0], m->v[i].n[1] / sc[1], m->v[i].n[2] / sc[2]}, wn[3];
-        float wp[3];
-        for (int r = 0; r < 3; r++) {
-            wp[r] = pos[r] + R[r * 3] * lp[0] + R[r * 3 + 1] * lp[1] + R[r * 3 + 2] * lp[2];
-            wn[r] = R[r * 3] * ln[0] + R[r * 3 + 1] * ln[1] + R[r * 3 + 2] * ln[2];
-        }
-        float l = sqrtf(wn[0] * wn[0] + wn[1] * wn[1] + wn[2] * wn[2]);
-        float d = l > 0 ? (wn[0] * L[0] + wn[1] * L[1] + wn[2] * L[2]) / l : 0;
-        float shade = 0.42f + 0.58f * (d > 0 ? d : 0);
-        int rr = (int)(((rgb >> 16) & 0xFF) * shade), gg = (int)(((rgb >> 8) & 0xFF) * shade), bb = (int)((rgb & 0xFF) * shade);
-        s_buf[i] = (RVertex){wp[0], wp[1], wp[2], 0, 0, 0xFF000000u | (unsigned)bb << 16 | (unsigned)gg << 8 | (unsigned)rr};
-    }
-    r_bind_texture(NULL);
-    r_draw(R_PRIM_TRIANGLES, s_buf, m->n);
+    uint32_t abgr = 0xFF000000u | ((rgb & 0xFFu) << 16) | (rgb & 0xFF00u) | ((rgb >> 16) & 0xFFu);
+    MxQuat rot_q = mx_quat_from_euler(mx_v3(rot[0], rot[1], rot[2]));
+    r_draw_shape(shape, mx_v3(pos[0], pos[1], pos[2]), rot_q, mx_v3(sc[0], sc[1], sc[2]), abgr);
 }
 
 void mx_scene_draw_3d(MxProject *p, int scene)
 {
     Json *s = mx_scene_doc(p, scene);
     if (!s) return;
-    build();
     r_set_cull(0);
     Json *set = json_get(s, "settings");
     if (json_getb(set, "fog_enabled", 0)) {
@@ -312,14 +232,8 @@ void mx_scene_draw_2d(MxProject *p, int scene, int x, int y, float scale)
     }
 }
 
-void mx_project_draw(MxProject *p, const MxCamera *cam, int w, int h)
+void mx_project_draw_2d(MxProject *p, int w, int h)
 {
-    // 3D layers first (the caller is in the 3D pass), then 2D layers over them.
-    for (int i = 0; i < mx_scene_count(p); i++)
-        if (p->visible[i] && !mx_scene_is_2d(p, i)) {
-            mx_camera_apply(cam, w, h);
-            mx_scene_draw_3d(p, i);
-        }
     gfx_begin_2d();
     for (int i = 0; i < mx_scene_count(p); i++) {
         if (!p->visible[i] || !mx_scene_is_2d(p, i)) continue;
@@ -328,6 +242,16 @@ void mx_project_draw(MxProject *p, const MxCamera *cam, int w, int h)
         float k = fminf(w / c[0], h / c[1]);
         mx_scene_draw_2d(p, i, (int)((w - c[0] * k) / 2), (int)((h - c[1] * k) / 2), k);
     }
+}
+
+void mx_project_draw(MxProject *p, const MxCamera *cam, int w, int h)
+{
+    for (int i = 0; i < mx_scene_count(p); i++)
+        if (p->visible[i] && !mx_scene_is_2d(p, i)) {
+            mx_camera_apply(cam, w, h);
+            mx_scene_draw_3d(p, i);
+        }
+    mx_project_draw_2d(p, w, h);
 }
 
 // ---------------------------------------------------------------- lines and tunnels

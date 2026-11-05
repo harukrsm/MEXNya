@@ -63,6 +63,11 @@ mesh, light or sprite components, `pos/rot/scale` become the transform, and colo
 converted from `#RRGGBB`. `mx_world_to_json` is the inverse. The editor's rotation
 convention is `Ry * Rx * Rz`, so instantiation multiplies quaternions in that order.
 
+`mx_world_draw_3d` draws transformed primitives through the shared
+`engine/render/primitives` meshes (models go through the .mcm cache), and
+`mx_world_draw_2d` draws sprites. `mx_project_draw_2d` draws only the editor's 2D layers,
+which lets a game render its world in the 3D pass and still get the UI layers on top.
+
 ## Savegames
 
 A save is `MXSV`, a 32-bit version, flags, a little-endian payload and a CRC-32.

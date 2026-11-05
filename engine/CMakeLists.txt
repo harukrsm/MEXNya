@@ -100,12 +100,14 @@ set(MEXNYA_ENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/render/gl/gl_render.c
     ${CMAKE_CURRENT_LIST_DIR}/render/gl/gl_stub.c
     ${CMAKE_CURRENT_LIST_DIR}/render/model.c
+    ${CMAKE_CURRENT_LIST_DIR}/render/primitives.c
     ${CMAKE_CURRENT_LIST_DIR}/render/render_dispatch.c
     ${CMAKE_CURRENT_LIST_DIR}/render/soft/soft_render.c
     ${CMAKE_CURRENT_LIST_DIR}/render/solid.c
     ${CMAKE_CURRENT_LIST_DIR}/render/text.c
     ${CMAKE_CURRENT_LIST_DIR}/render/ui.c
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.c
+    ${CMAKE_CURRENT_LIST_DIR}/world/draw.c
     ${CMAKE_CURRENT_LIST_DIR}/world/instantiate.c
     ${CMAKE_CURRENT_LIST_DIR}/world/world.c
 )
