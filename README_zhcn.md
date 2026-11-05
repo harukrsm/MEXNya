@@ -179,6 +179,7 @@ mexnya agent view.snapshot '{"scene":"main","preset":"top"}' --as my-agent
 | 熟悉编辑器与快捷键 | [编辑器指南](docs/guide.md#the-editor) |
 | 理解 Scene、Port、Line 和 Tunnel | [核心概念](docs/guide.md#concepts) |
 | 用 C 编写游戏 | [游戏开发指南](docs/guide.md#making-a-game) · [引擎 API](docs/guide.md#engine-api) |
+| 把游戏迁移到 world 层 | [迁移指南](docs/migration-v1.md) |
 | 自动化编辑或接入 Agent | [操作列表](docs/guide.md#all-operations) |
 | 扩展编辑器 | [Lua 与原生插件](docs/guide.md#plugin-specification) |
 | 配置构建或查看项目数据 | [构建工具](docs/guide.md#build-tool-and-mexnyajson) · [文件格式](docs/guide.md#file-formats) |

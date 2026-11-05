@@ -38,6 +38,10 @@ All notable changes to MEXNya are recorded here. The format follows
   keeps its signature; `engine_loop_ex` and `engine_step` expose the new behaviour, and
   `timestep_test` checks ticks at 30/60/144 fps, determinism and pause.
 
+### Documentation
+
+- `docs/migration-v1.md`: old scene/JSON APIs → world, fixed timestep, saves and logging.
+
 ### Changed
 
 - `.gitignore` now also covers temporary files, crash logs and debug symbols.

@@ -185,6 +185,7 @@ headless on the project files. Requests are recorded in `mexnya/agent/log.jsonl`
 | Learn the editor and its shortcuts | [Editor guide](docs/guide.md#the-editor) |
 | Understand Scenes, Ports, Lines and Tunnels | [Core concepts](docs/guide.md#concepts) |
 | Write a game in C | [Game walkthrough](docs/guide.md#making-a-game) · [Engine API](docs/guide.md#engine-api) |
+| Move a game onto the world layer | [Migration guide](docs/migration-v1.md) |
 | Automate edits or connect an agent | [Operations](docs/guide.md#all-operations) |
 | Extend the editor | [Lua and native plugins](docs/guide.md#plugin-specification) |
 | Configure builds or inspect project data | [Build tool](docs/guide.md#build-tool-and-mexnyajson) · [File formats](docs/guide.md#file-formats) |

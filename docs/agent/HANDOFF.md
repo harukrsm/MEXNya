@@ -86,6 +86,13 @@ and what the next task needs to know. It follows the task plan supplied with thi
 - No v1→v2 migration exists yet because v1 is the first format; unknown versions return
   `MX_ERR_FORMAT` with a message. Add the migration chain when the format changes.
 
+### T15 · documentation (partial)
+
+- `docs/migration-v1.md`: API map, before/after code for a game moving from the JSON
+  scene runtime to the world layer, fixed timestep, drawing, saves and pitfalls.
+- `docs/architecture.md` covers layers, the frame, memory, savegames and tests.
+- Not done: performance gates and `benchmarks/baseline.json`.
+
 ### T13 · packaging (macOS only)
 
 - `scripts/package_macos.sh` builds a Release tree if needed and assembles
@@ -140,7 +147,7 @@ the same suite.
   uploads do not.
 - Not implemented: physics (T6), RGBA8 textures (T7), batching (T8), audio buses (T9),
   input expansion (T10), assets (T11), Lua components (T12), play-in-editor (T14),
-  migration guide and performance gates (T15).
+  performance gates and benchmarks (part of T15).
 - The Ubuntu CI job is new and has not been run on this machine; it installs the SDL3
   build dependencies and runs the same suite.
 - `str` interning and the tracked allocator are single-threaded by design.
