@@ -24,6 +24,7 @@ typedef struct MxWorld MxWorld;
 
 MxWorld *mx_world_create(void);
 void mx_world_destroy(MxWorld *w);
+void mx_world_swap(MxWorld *a, MxWorld *b);
 MxEntity mx_entity_create(MxWorld *w);
 void mx_entity_destroy(MxWorld *w, MxEntity e);
 int mx_entity_alive(const MxWorld *w, MxEntity e);

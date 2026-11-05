@@ -203,6 +203,14 @@ void mx_world_destroy(MxWorld *w)
     mx_mem_free(w);
 }
 
+void mx_world_swap(MxWorld *a, MxWorld *b)
+{
+    if (!a || !b) return;
+    MxWorld tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 static int free_push(MxWorld *w, int index)
 {
     if (w->free_count >= w->free_cap) {

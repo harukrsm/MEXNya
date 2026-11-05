@@ -11,7 +11,8 @@ and the rules that keep the pieces separable.
 | Core | `engine/core/` — JSON, i18n, PNG writer, memory, containers, paths, math, errors, logging | libc |
 | Platform | `engine/platform/` — lifecycle, clock, files, threads, window, input, audio device | SDL3 (desktop backend only) |
 | Render | `engine/render/` — intent-level API, batching front end, font, models, UI | platform, OpenGL (GL backend only) |
-| World | `engine/world/` — entities, components, transform hierarchy | core |
+| World | `engine/world/` — entities, components, transform hierarchy, scene instantiation | core |
+| Game | `engine/game/` — binary savegames, settings | core, world, platform |
 | Scene | `engine/scene/` — read-only JSON scenes, drawing, ports | core, render |
 | Audio | `engine/audio/` — software mixer and MP3 decode | platform, minimp3 |
 | Console | `engine/console/` — stdin commands and Lua | platform, Lua |
@@ -61,6 +62,16 @@ writes `local` and `world` matrices. `mx_world_tick` copies the current transfor
 mesh, light or sprite components, `pos/rot/scale` become the transform, and colours are
 converted from `#RRGGBB`. `mx_world_to_json` is the inverse. The editor's rotation
 convention is `Ry * Rx * Rz`, so instantiation multiplies quaternions in that order.
+
+## Savegames
+
+A save is `MXSV`, a 32-bit version, flags, a little-endian payload and a CRC-32.
+Entities are written in slot order, so the same world produces the same bytes. Each
+record stores the entity's original index (for parent links), name, type, transform,
+parent and component fields. Loading parses into a temporary world, verifies the whole
+payload first, and only swaps it into the caller on success; a corrupt or unknown-version
+file leaves the current world untouched. Files are written through
+`plat_write_file_atomic`, so a crash keeps the previous save intact.
 
 ## Memory
 

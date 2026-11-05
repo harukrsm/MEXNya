@@ -18,6 +18,9 @@ All notable changes to MEXNya are recorded here. The format follows
 - `MX_MEM_TRACK` (`-DMEXNYA_MEM_TRACK=ON`) allocation tracking and `mx_mem_report()`.
 - `plat_write_file_atomic`, `plat_try_lock` and `plat_unlock`; `atomic_test` covers crashes
   mid-write, concurrent writers and stale locks.
+- Versioned binary savegames (`MXSV`, CRC-32, atomic writes, parent links preserved) and
+  JSON settings with schema version and recursive default merging; `save_test` covers
+  round-trips, determinism, corrupt/truncated/unknown-version files and concurrent writers.
 - World layer: generational entity handles, interned names with O(1) lookup, sparse-set
   components (transform, mesh, collider, rigid body, script, audio source, camera, light,
   sprite), parent/child transforms with world matrices and per-tick interpolation state;

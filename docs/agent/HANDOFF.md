@@ -63,6 +63,19 @@ and what the next task needs to know. It follows the task plan supplied with thi
 - Not done yet: a world renderer and migrating the sample and template off the JSON DOM.
   The scene runtime still draws from JSON.
 
+### T5 · savegames and settings
+
+- `engine/game/save.[ch]`: `mx_save_write` / `mx_save_read` / `mx_save_delete` /
+  `mx_save_exists`, slot paths under `<user>/saves/<slot>.mxs`, `MXSV` v1, little-endian
+  payload, CRC-32, atomic writes, entity order deterministic, parent links restored.
+- Loading parses into a temporary world and swaps on success (`mx_world_swap`), so a
+  corrupt, truncated or unknown-version file does not touch the current world.
+- `engine/game/settings.[ch]`: JSON settings with `schema_version` and recursive defaults.
+- `tests/save_test.c`: full component round-trip, byte-identical repeated saves, bad
+  version, bad CRC, truncation, slot path rejection and two concurrent writers.
+- No v1→v2 migration exists yet because v1 is the first format; unknown versions return
+  `MX_ERR_FORMAT` with a message. Add the migration chain when the format changes.
+
 ### T3 · fixed timestep
 
 - `EngineConfig` gains `fixed_hz`, `max_catchup` and `pause_on_focus_lost` (appended,
@@ -101,11 +114,11 @@ the same suite.
 
 ## Known gaps
 
-- T4 is partial (world core only): scene instantiation, JSON export and sample migration
-  remain. The roadmap after T4 is not implemented: savegames (T5), physics (T6), RGBA8
-  textures (T7), batching (T8), audio buses (T9), input expansion (T10), assets (T11),
-  Lua components (T12), packaging (T13), play-in-editor (T14), migration guide and
-  performance gates (T15).
+- T4 is partial: scene instantiation and JSON export exist, but there is no world
+  renderer and the sample/template still drive the scene JSON DOM.
+- Not implemented: physics (T6), RGBA8 textures (T7), batching (T8), audio buses (T9),
+  input expansion (T10), assets (T11), Lua components (T12), packaging (T13),
+  play-in-editor (T14), migration guide and performance gates (T15).
 - The Ubuntu CI job is new and has not been run on this machine; it installs the SDL3
   build dependencies and runs the same suite.
 - `str` interning and the tracked allocator are single-threaded by design.

@@ -27,6 +27,10 @@ echo "timestep OK"
 "$BUILD/world_test"
 echo "world OK"
 
+mkdir -p "$OUT/save"
+"$BUILD/save_test" "$OUT/save"
+echo "save OK"
+
 "$BUILD/engine-smoke" --headless --frames 30 --shot "$OUT/smoke.bmp" > "$OUT/smoke.log"
 grep -q "engine-smoke: 30 frames" "$OUT/smoke.log"
 echo "engine smoke OK"
