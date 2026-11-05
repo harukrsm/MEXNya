@@ -83,6 +83,40 @@ bin/mexnya run
 ./build/debug/samples/hello/hello
 ```
 
+### Build on macOS from Terminal
+
+The macOS build needs only Apple's command line tools. CMake fetches and builds the
+pinned SDL3 during the first configure.
+
+```bash
+xcode-select --install                                    # once: clang, make, macOS SDK
+git clone https://github.com/harukrsm/MEXNya.git
+cd MEXNya
+cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug
+cmake --build build/debug -j"$(sysctl -n hw.ncpu)"
+```
+
+Then run the checks, the editor and the sample game:
+
+```bash
+bash scripts/test.sh
+bin/mexnya run
+./build/debug/samples/hello/hello
+```
+
+The first configure downloads SDL3 and takes a few minutes; later builds reuse
+`build/debug`. For a release build:
+
+```bash
+cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release
+cmake --build build/release -j"$(sysctl -n hw.ncpu)"
+./build/release/samples/hello/hello
+```
+
+The same source builds for Intel and Apple Silicon; CMake targets the host
+architecture. If the machine cannot reach the network, pass an SDL3 source tree with
+`-DMEXNYA_SDL3_DIR=/path/to/SDL`.
+
 On Windows, use `bin\mexnya.cmd run` and the sample's `.exe` path for your CMake
 generator. See [platform status](#project-status) for what has been tested.
 

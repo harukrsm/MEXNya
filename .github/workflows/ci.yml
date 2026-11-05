@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS (Debug)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: build/debug
+          key: macos-debug-${{ hashFiles('CMakeLists.txt', 'engine/CMakeLists.txt', 'editor/CMakeLists.txt', 'tests/CMakeLists.txt', 'samples/**/CMakeLists.txt') }}
+          restore-keys: macos-debug-
+      - name: Configure
+        run: cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build build/debug -j"$(sysctl -n hw.ncpu)"
+      - name: Test
+        run: bash scripts/test.sh
+
+  linux:
+    name: Linux (Debug)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SDL3 build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake pkg-config \
+            libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev \
+            libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libdrm-dev libgbm-dev \
+            libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev \
+            libibus-1.0-dev libudev-dev liburing-dev
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: build/debug
+          key: linux-debug-${{ hashFiles('CMakeLists.txt', 'engine/CMakeLists.txt', 'editor/CMakeLists.txt', 'tests/CMakeLists.txt', 'samples/**/CMakeLists.txt') }}
+          restore-keys: linux-debug-
+      - name: Configure
+        run: cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build build/debug -j"$(nproc)"
+      - name: Test
+        run: bash scripts/test.sh

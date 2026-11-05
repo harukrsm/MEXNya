@@ -1,4 +1,8 @@
 .DS_Store
 /build/
+/build-*/
 __pycache__/
 *.py[cod]
+*.tmp
+crash.log
+*.dSYM/

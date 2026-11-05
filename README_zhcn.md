@@ -81,6 +81,37 @@ bin/mexnya run
 ./build/debug/samples/hello/hello
 ```
 
+### 在 macOS 的终端中构建
+
+macOS 只需要 Apple 的命令行工具；首次配置时 CMake 会下载并编译固定版本的 SDL3。
+
+```bash
+xcode-select --install                                    # 只需一次：clang、make、macOS SDK
+git clone https://github.com/harukrsm/MEXNya.git
+cd MEXNya
+cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug
+cmake --build build/debug -j"$(sysctl -n hw.ncpu)"
+```
+
+随后运行检查、编辑器和示例游戏：
+
+```bash
+bash scripts/test.sh
+bin/mexnya run
+./build/debug/samples/hello/hello
+```
+
+首次配置会下载 SDL3，需要几分钟；之后的构建复用 `build/debug`。发布版构建：
+
+```bash
+cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release
+cmake --build build/release -j"$(sysctl -n hw.ncpu)"
+./build/release/samples/hello/hello
+```
+
+同一份源码可在 Intel 与 Apple Silicon 上构建，CMake 使用本机架构。若机器无法联网，
+可用 `-DMEXNYA_SDL3_DIR=/path/to/SDL` 指向本地的 SDL3 源码。
+
 Windows 使用 `bin\mexnya.cmd run`；示例的 `.exe` 路径取决于所用的 CMake 生成器。
 各平台的验证情况见[项目状态](#项目状态)。
 
