@@ -8,6 +8,9 @@ All notable changes to MEXNya are recorded here. The format follows
 
 ### Added
 
+- `scripts/package_macos.sh`: Release build, `MEXNya.app` and `hello.app` bundles with
+  Info.plist and ad-hoc (or `MEXNYA_CODESIGN_ID`) signing, verified by running both apps
+  headless from the bundle.
 - Explicit engine source lists (no configure-time globbing), `CMakePresets.json` for
   `dev`/`release`/`ci`, and a `MEXNYA_WERROR` option that CI turns on.
 - Continuous integration for macOS and Ubuntu: configure, build and `scripts/test.sh`.

@@ -115,6 +115,16 @@ CMake 3.23 及以上也可以用预设：`cmake --preset dev`、`cmake --build -
 同一份源码可在 Intel 与 Apple Silicon 上构建，CMake 使用本机架构。若机器无法联网，
 可用 `-DMEXNYA_SDL3_DIR=/path/to/SDL` 指向本地的 SDL3 源码。
 
+### 打包 macOS 应用
+
+```bash
+bash scripts/package_macos.sh
+open dist/MEXNya.app
+```
+
+脚本会构建 Release，生成 `dist/MEXNya.app` 与 `dist/hello.app`，并进行 ad-hoc 签名。
+分发时把 `MEXNYA_CODESIGN_ID` 设为 Developer ID；公证未自动化。
+
 Windows 使用 `bin\mexnya.cmd run`；示例的 `.exe` 路径取决于所用的 CMake 生成器。
 各平台的验证情况见[项目状态](#项目状态)。
 

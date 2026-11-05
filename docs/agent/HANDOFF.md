@@ -86,6 +86,18 @@ and what the next task needs to know. It follows the task plan supplied with thi
 - No v1→v2 migration exists yet because v1 is the first format; unknown versions return
   `MX_ERR_FORMAT` with a message. Add the migration chain when the format changes.
 
+### T13 · packaging (macOS only)
+
+- `scripts/package_macos.sh` builds a Release tree if needed and assembles
+  `dist/MEXNya.app` (editor) and `dist/hello.app` (sample). Resources go to
+  `Contents/Resources`; `SDL_GetBasePath` resolves there for bundles.
+- Info.plist carries the version from `project(MEXNya VERSION ...)`, the bundle id and
+  `NSHighResolutionCapable`; `codesign --force --deep` uses `-` unless
+  `MEXNYA_CODESIGN_ID` is set, then `codesign --verify --deep --strict` must pass.
+- Verified: both apps start from the bundle, the editor returns `project.get`, the sample
+  renders a PNG headlessly, and `otool -L` shows only system frameworks.
+- Not done: notarization, Windows/Linux artifacts, CI upload.
+
 ### T3 · fixed timestep
 
 - `EngineConfig` gains `fixed_hz`, `max_catchup` and `pause_on_focus_lost` (appended,
@@ -124,9 +136,11 @@ the same suite.
 
 ## Known gaps
 
+- T13 is partial: macOS bundles exist, but notarization, Windows/Linux artifacts and CI
+  uploads do not.
 - Not implemented: physics (T6), RGBA8 textures (T7), batching (T8), audio buses (T9),
-  input expansion (T10), assets (T11), Lua components (T12), packaging (T13),
-  play-in-editor (T14), migration guide and performance gates (T15).
+  input expansion (T10), assets (T11), Lua components (T12), play-in-editor (T14),
+  migration guide and performance gates (T15).
 - The Ubuntu CI job is new and has not been run on this machine; it installs the SDL3
   build dependencies and runs the same suite.
 - `str` interning and the tracked allocator are single-threaded by design.

@@ -120,6 +120,17 @@ The same source builds for Intel and Apple Silicon; CMake targets the host
 architecture. If the machine cannot reach the network, pass an SDL3 source tree with
 `-DMEXNYA_SDL3_DIR=/path/to/SDL`.
 
+### Package a macOS app
+
+```bash
+bash scripts/package_macos.sh
+open dist/MEXNya.app
+```
+
+The script builds a Release tree, assembles `dist/MEXNya.app` and `dist/hello.app`,
+and ad-hoc signs both. Set `MEXNYA_CODESIGN_ID` to a Developer ID identity for
+distribution; notarization is not automated.
+
 On Windows, use `bin\mexnya.cmd run` and the sample's `.exe` path for your CMake
 generator. See [platform status](#project-status) for what has been tested.
 
