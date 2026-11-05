@@ -1,1 +1,0 @@
--I/src/engine/.. -I"/src/build/windows/SDL3/include-revision" -I/sdl/include -I/src/engine/../third_party/lua/src

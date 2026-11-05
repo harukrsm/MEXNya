@@ -1,8 +1,0 @@
-{"t":"2026-11-06T00:12:05","who":"agent","op":"project.get","ok":true,"ms":0}
-{"t":"2026-11-06T00:12:05","who":"test","op":"object.add","args":{"type":"box","id":"crate","pos":[0,0.5,0]},"ok":true,"ms":0.5}
-{"t":"2026-11-06T00:12:05","who":"test","op":"note.add","args":{"kind":"box","text":"check","shape":{"rect":[200,120,160,160]}},"ok":true,"ms":32}
-{"t":"2026-11-06T00:12:05","who":"agent","op":"view.snapshot","args":{"path":"snapshots/t.png"},"ok":true,"ms":32.5}
-{"t":"2026-11-06T00:12:05","who":"test","op":"object.add","args":{"type":"sphere","id":"tmp"},"ok":true,"ms":0.6}
-{"t":"2026-11-06T00:12:05","who":"test","op":"undo","ok":true,"ms":0}
-{"t":"2026-11-06T00:12:05","who":"agent","op":"object.get","args":{"id":"tmp"},"ok":false,"error":"no such object \"tmp\"","ms":0}
-{"t":"2026-11-06T00:17:29","who":"agent","op":"help","ok":true,"ms":0}

@@ -1,1 +1,0 @@
- ../engine/libmexnya_engine.a ../SDL3/libSDL3.a -lm -lkernel32 -luser32 -lwinmm -limm32 -lole32 -loleaut32 -lversion -luuid -ladvapi32 -lsetupapi -lshell32 -ldinput8 ../engine/libmexnya_lua.a -lgdi32 -lopengl32 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

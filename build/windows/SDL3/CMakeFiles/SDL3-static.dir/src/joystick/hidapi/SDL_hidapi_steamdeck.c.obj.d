@@ -1,9 +1,0 @@
-SDL3/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_steamdeck.c.obj: \
- /sdl/src/joystick/hidapi/SDL_hidapi_steamdeck.c /sdl/src/SDL_internal.h \
- /sdl/src/joystick/hidapi/../SDL_sysjoystick.h \
- /sdl/src/joystick/hidapi/../SDL_joystick_c.h \
- /sdl/src/joystick/hidapi/SDL_hidapijoystick_c.h \
- /sdl/src/joystick/hidapi/../usb_ids.h \
- /sdl/src/joystick/hidapi/steam/controller_constants.h \
- /sdl/src/joystick/hidapi/steam/controller_structs.h \
- /sdl/src/joystick/hidapi/steam/controller_structs.h

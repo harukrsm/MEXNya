@@ -32,8 +32,18 @@ int main(int argc, char **argv)
     char dir[1024];
     snprintf(dir, sizeof(dir), "%s/engine/resources/lang", root);
     CHECK(i18n_add_domain(dir, "editor") > 100);
-    const char *en = tr("top.save");
+    const char *saved[I18N_LANG_COUNT];
+    char expected[I18N_LANG_COUNT][128];
+    for (int i = 0; i < I18N_LANG_COUNT; i++) {
+        i18n_set_language(i18n_lang_code(i));
+        saved[i] = tr("top.save");
+        snprintf(expected[i], sizeof(expected[i]), "%s", saved[i]);
+    }
+    const char *en = saved[0];
     for (int i = 0; i < 1000; i++) i18n_set_language(i18n_lang_code(i % I18N_LANG_COUNT));
+    for (int i = 0; i < I18N_LANG_COUNT; i++) CHECK(!strcmp(saved[i], expected[i]));
+    i18n_add_domain(dir, "editor");
+    for (int i = 0; i < I18N_LANG_COUNT; i++) CHECK(!strcmp(saved[i], expected[i]));
     i18n_set_language("ko");
     CHECK(strcmp(tr("top.save"), "Save") != 0);
     i18n_set_language("en");
