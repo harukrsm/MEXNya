@@ -18,6 +18,10 @@ All notable changes to MEXNya are recorded here. The format follows
 - `MX_MEM_TRACK` (`-DMEXNYA_MEM_TRACK=ON`) allocation tracking and `mx_mem_report()`.
 - `plat_write_file_atomic`, `plat_try_lock` and `plat_unlock`; `atomic_test` covers crashes
   mid-write, concurrent writers and stale locks.
+- Fixed-timestep loop (`fixed_hz`, `max_catchup`, `pause_on_focus_lost`), render interpolation
+  alpha, time scaling, a deterministic tick hash and per-phase frame timings. `engine_loop`
+  keeps its signature; `engine_loop_ex` and `engine_step` expose the new behaviour, and
+  `timestep_test` checks ticks at 30/60/144 fps, determinism and pause.
 
 ### Changed
 
@@ -28,6 +32,8 @@ All notable changes to MEXNya are recorded here. The format follows
   message, a lock left by a dead process is reclaimed, and agent operations keep working
   through the running editor.
 - `mexnya/agent/log.jsonl` rotates at 10 MB and keeps one backup.
+- With a fixed timestep, input edges are consumed by the first sub-step of a frame so one
+  press cannot fire twice.
 
 ## [0.1.0] - 2026-11-05
 

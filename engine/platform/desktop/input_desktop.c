@@ -462,6 +462,15 @@ void input_inject_actions(uint64_t held, uint64_t pressed, int frames)
 
 void input_get_last(Input *out) { if (out) *out = s_last_input; }
 
+void input_clear_edges(void)
+{
+    s_last_input.pressed = 0;
+    s_last_input.repeat = 0;
+    s_last_input.mouse_pressed = 0;
+    s_last_input.wheel = 0;
+    s_last_input.mouse_moved = 0;
+}
+
 int input_take_last_press(void)
 {
     int v = -100;

@@ -48,6 +48,7 @@ void input_test_push_focus(int focused);
 void input_test_push_button(int button, int down);
 void input_test_push_wheel(float y);
 void input_get_last(Input *out);
+void input_clear_edges(void);
 // The key or mouse button pressed since the last call (binding value), or -100. Rebinding.
 int input_take_last_press(void);
 

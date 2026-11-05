@@ -21,6 +21,9 @@ mkdir -p "$OUT/atomic"
 "$BUILD/atomic_test" "$OUT/atomic"
 echo "atomic OK"
 
+"$BUILD/timestep_test"
+echo "timestep OK"
+
 "$BUILD/engine-smoke" --headless --frames 30 --shot "$OUT/smoke.bmp" > "$OUT/smoke.log"
 grep -q "engine-smoke: 30 frames" "$OUT/smoke.log"
 echo "engine smoke OK"
