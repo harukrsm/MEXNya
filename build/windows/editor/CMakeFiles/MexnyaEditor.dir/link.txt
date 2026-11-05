@@ -1,0 +1,3 @@
+/usr/src/mxe/usr/x86_64-pc-linux-gnu/bin/cmake -E rm -f CMakeFiles/MexnyaEditor.dir/objects.a
+/usr/src/mxe/usr/bin/x86_64-w64-mingw32.static-ar qc CMakeFiles/MexnyaEditor.dir/objects.a @CMakeFiles/MexnyaEditor.dir/objects1.rsp
+/usr/src/mxe/usr/bin/x86_64-w64-mingw32.static-gcc -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles/MexnyaEditor.dir/objects.a -Wl,--no-whole-archive -o ../MexnyaEditor.exe -Wl,--out-implib,libMexnyaEditor.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles/MexnyaEditor.dir/linkLibs.rsp

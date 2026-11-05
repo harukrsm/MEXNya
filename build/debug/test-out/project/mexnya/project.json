@@ -1,0 +1,12 @@
+{
+  "format": "mexnya-project",
+  "version": 1,
+  "name": "Test",
+  "scenes": ["main"],
+  "tunnels": [],
+  "lines": [],
+  "graph": {
+    "main": [60, 60]
+  },
+  "plugins": {}
+}

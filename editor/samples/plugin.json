@@ -1,0 +1,6 @@
+{
+  "name": "hello",
+  "version": "1.0",
+  "description": "Native sample: hello.grid lays out markers through the editor's operations.",
+  "native": {"macos": "mx_plugin_hello.so", "linux": "mx_plugin_hello.so", "windows": "mx_plugin_hello.dll"}
+}

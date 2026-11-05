@@ -1,0 +1,11 @@
+# Cross-compile for 64-bit Windows with MXE (the dockcross/windows-static-x64 image).
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
+set(CMAKE_C_COMPILER /usr/src/mxe/usr/bin/x86_64-w64-mingw32.static-gcc)
+set(CMAKE_CXX_COMPILER /usr/src/mxe/usr/bin/x86_64-w64-mingw32.static-g++)
+set(CMAKE_RC_COMPILER /usr/src/mxe/usr/bin/x86_64-w64-mingw32.static-windres)
+set(CMAKE_FIND_ROOT_PATH /usr/src/mxe/usr/x86_64-w64-mingw32.static /usr/src/mxe/usr)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)

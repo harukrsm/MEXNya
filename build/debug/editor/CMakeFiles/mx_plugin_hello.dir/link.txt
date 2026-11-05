@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/cc -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -bundle -Wl,-headerpad_max_install_names -o ../plugins/mx_plugin_hello.so CMakeFiles/mx_plugin_hello.dir/samples/hello_plugin.c.o

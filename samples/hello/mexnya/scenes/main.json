@@ -1,0 +1,25 @@
+{
+  "format": "mexnya-scene",
+  "version": 1,
+  "id": "main",
+  "name": "Main",
+  "kind": "3d",
+  "visible": true,
+  "locked": false,
+  "settings": {"background": "#3A3D42", "fog": [20, 80], "fog_color": "#808890", "fog_enabled": false},
+  "ports": [
+    {"name": "show", "dir": "in"},
+    {"name": "hide", "dir": "in"},
+    {"name": "use", "dir": "out"}
+  ],
+  "camera": {"target": [0, 0.5, 0], "yaw": 30, "pitch": 30, "dist": 12, "fov": 55, "ortho": false},
+  "objects": [
+    {"id": "ground", "name": "Ground", "type": "plane", "pos": [0, 0, 0], "rot": [0, 0, 0], "scale": [24, 1, 24], "color": "#6E7277"},
+    {"id": "player", "name": "Player", "type": "box", "pos": [0, 0.5, 0], "rot": [0, 0, 0], "scale": [1, 1, 1], "color": "#4C8DDB"},
+    {"id": "pillar_1", "name": "Pillar", "type": "cylinder", "pos": [4, 1, -3], "rot": [0, 0, 0], "scale": [1, 2, 1], "color": "#B4B8BE"},
+    {"id": "pillar_2", "name": "Pillar", "type": "cylinder", "pos": [-5, 1, 2], "rot": [0, 0, 0], "scale": [1, 2, 1], "color": "#B4B8BE"},
+    {"id": "ball", "name": "Ball", "type": "sphere", "pos": [2, 0.75, 4], "rot": [0, 0, 0], "scale": [1.5, 1.5, 1.5], "color": "#E8B04A"},
+    {"id": "light", "name": "Light", "type": "light", "pos": [2, 4, 2], "rot": [0, 0, 0], "scale": [1, 1, 1], "color": "#FFF2D8"}
+  ],
+  "notes": []
+}

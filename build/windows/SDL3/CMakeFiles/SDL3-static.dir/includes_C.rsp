@@ -1,0 +1,1 @@
+-I"/src/build/windows/SDL3/include-config-release/build_config" -I"/src/build/windows/SDL3/include-revision" -I/sdl/include -I/sdl/src

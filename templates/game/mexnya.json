@@ -1,0 +1,9 @@
+{
+  "name": "__GAME_NAME__",
+  "version": "0.1.0",
+  "targets": {
+    "debug":   {"dir": "build/debug",   "type": "Debug"},
+    "release": {"dir": "build/release", "type": "Release"}
+  },
+  "editor": {"run": {"target": "debug", "binary": "__GAME_NAME__"}}
+}

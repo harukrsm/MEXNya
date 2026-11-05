@@ -1,0 +1,10 @@
+{
+  "name": "MEXNya",
+  "version": "0.1.0",
+  "targets": {
+    "debug":   {"dir": "build/debug",   "type": "Debug"},
+    "release": {"dir": "build/release", "type": "Release"}
+  },
+  "editor": {"run": {"target": "debug", "binary": "samples/hello/hello"}},
+  "test": {"target": "debug", "script": "scripts/test.sh"}
+}

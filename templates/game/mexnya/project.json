@@ -1,0 +1,12 @@
+{
+  "format": "mexnya-project",
+  "version": 1,
+  "name": "__GAME_NAME__",
+  "scenes": ["main", "hud"],
+  "tunnels": [],
+  "lines": [
+    {"id": "line_1", "from": "main.use", "to": "hud.show", "note": "pressing E shows the HUD"}
+  ],
+  "graph": {"main": [60, 60], "hud": [320, 60]},
+  "plugins": {}
+}

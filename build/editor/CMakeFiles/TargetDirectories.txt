@@ -1,0 +1,14 @@
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/CMakeFiles/edit_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/CMakeFiles/rebuild_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/engine/CMakeFiles/mexnya_lua.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/engine/CMakeFiles/mexnya_engine.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/engine/CMakeFiles/edit_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/engine/CMakeFiles/rebuild_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/SDL3/CMakeFiles/SDL3-static.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/SDL3/CMakeFiles/SDL_uclibc.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/SDL3/CMakeFiles/edit_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/SDL3/CMakeFiles/rebuild_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/editor/CMakeFiles/MexnyaEditor.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/editor/CMakeFiles/mx_plugin_hello.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/editor/CMakeFiles/edit_cache.dir
+/Users/matt/Desktop/Vibe Project/git-MEXNya/build/editor/editor/CMakeFiles/rebuild_cache.dir
