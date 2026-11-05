@@ -135,25 +135,6 @@ static RMatrixMode s_mmode = R_MATRIX_MODEL;
 static int s_two_d;
 static int s_inited;
 
-static void mat_identity(RMat4 *m)
-{
-    memset(m, 0, sizeof(*m));
-    m->m[0] = m->m[5] = m->m[10] = m->m[15] = 1.0f;
-}
-
-static void mat_mul(RMat4 *r, const RMat4 *a, const RMat4 *b)
-{
-    RMat4 t;
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++) {
-            float v = 0.0f;
-            for (int k = 0; k < 4; k++)
-                v += a->m[k * 4 + j] * b->m[i * 4 + k];
-            t.m[i * 4 + j] = v;
-        }
-    *r = t;
-}
-
 static RMat4 *cur(void)
 {
     if (s_mmode == R_MATRIX_PROJECTION) return &s_proj;
@@ -162,35 +143,35 @@ static RMat4 *cur(void)
 }
 
 void gl_r_matrix_mode(RMatrixMode m) { s_mmode = m; }
-void gl_r_load_identity(void) { mat_identity(cur()); }
+void gl_r_load_identity(void) { mx_mat4_identity(cur()); }
 void gl_r_load_matrix(const RMat4 *m) { if (m) *cur() = *m; }
 void gl_r_store_matrix(RMat4 *m) { if (m) *m = *cur(); }
 void gl_r_update_matrix(void) {}
 void gl_r_translate(const RVec3 *v)
 {
-    RMat4 t; mat_identity(&t); t.m[12] = v->x; t.m[13] = v->y; t.m[14] = v->z;
-    mat_mul(cur(), cur(), &t);
+    RMat4 t; mx_mat4_identity(&t); t.m[12] = v->x; t.m[13] = v->y; t.m[14] = v->z;
+    mx_mat4_mul(cur(), cur(), &t);
 }
 void gl_r_rotate_x(float a)
 {
-    RMat4 t; mat_identity(&t);
+    RMat4 t; mx_mat4_identity(&t);
     float c = cosf(a), s = sinf(a);
     t.m[5] = c; t.m[6] = s; t.m[9] = -s; t.m[10] = c;
-    mat_mul(cur(), cur(), &t);
+    mx_mat4_mul(cur(), cur(), &t);
 }
 void gl_r_rotate_y(float a)
 {
-    RMat4 t; mat_identity(&t);
+    RMat4 t; mx_mat4_identity(&t);
     float c = cosf(a), s = sinf(a);
     t.m[0] = c; t.m[2] = -s; t.m[8] = s; t.m[10] = c;
-    mat_mul(cur(), cur(), &t);
+    mx_mat4_mul(cur(), cur(), &t);
 }
 void gl_r_rotate_z(float a)
 {
-    RMat4 t; mat_identity(&t);
+    RMat4 t; mx_mat4_identity(&t);
     float c = cosf(a), s = sinf(a);
     t.m[0] = c; t.m[1] = s; t.m[4] = -s; t.m[5] = c;
-    mat_mul(cur(), cur(), &t);
+    mx_mat4_mul(cur(), cur(), &t);
 }
 void gl_r_scale(const RVec3 *v)
 {
@@ -201,7 +182,7 @@ void gl_r_scale(const RVec3 *v)
 }
 void gl_r_perspective(float fov, float aspect, float near_m, float far_m)
 {
-    RMat4 t; mat_identity(&t);
+    RMat4 t; mx_mat4_identity(&t);
     float a = (fov * 0.5f) * (3.14159265f / 180.0f), cot = cosf(a) / sinf(a);
     float dz = near_m - far_m;
     t.m[0] = cot / aspect;
@@ -210,7 +191,7 @@ void gl_r_perspective(float fov, float aspect, float near_m, float far_m)
     t.m[11] = -1.0f;
     t.m[14] = 2.0f * far_m * near_m / dz;
     t.m[15] = 0.0f;
-    mat_mul(cur(), cur(), &t);
+    mx_mat4_mul(cur(), cur(), &t);
 }
 void gl_r_look_at(const RVec3 *eye, const RVec3 *at, const RVec3 *up)
 {
@@ -223,11 +204,11 @@ void gl_r_look_at(const RVec3 *eye, const RVec3 *at, const RVec3 *up)
     if (l < 1e-8f) return;
     s.x /= l; s.y /= l; s.z /= l;
     RVec3 u = {s.y * f.z - s.z * f.y, s.z * f.x - s.x * f.z, s.x * f.y - s.y * f.x};
-    RMat4 t; mat_identity(&t);
+    RMat4 t; mx_mat4_identity(&t);
     t.m[0] = s.x; t.m[4] = s.y; t.m[8] = s.z;
     t.m[1] = u.x; t.m[5] = u.y; t.m[9] = u.z;
     t.m[2] = -f.x; t.m[6] = -f.y; t.m[10] = -f.z;
-    mat_mul(cur(), cur(), &t);
+    mx_mat4_mul(cur(), cur(), &t);
     RVec3 ie = {-eye->x, -eye->y, -eye->z};
     gl_r_translate(&ie);
 }
@@ -505,12 +486,12 @@ int gl_r_init(const char *backend)
     glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-    mat_identity(&s_proj);
-    mat_identity(&s_view);
-    mat_identity(&s_model);
-    mat_identity(&s_proj_stack[0]);
-    mat_identity(&s_view_stack[0]);
-    mat_identity(&s_model_stack[0]);
+    mx_mat4_identity(&s_proj);
+    mx_mat4_identity(&s_view);
+    mx_mat4_identity(&s_model);
+    mx_mat4_identity(&s_proj_stack[0]);
+    mx_mat4_identity(&s_view_stack[0]);
+    mx_mat4_identity(&s_model_stack[0]);
     s_proj_top = s_view_top = s_model_top = 0;
     s_mmode = R_MATRIX_MODEL;
     glEnable(GL_DEPTH_TEST);
@@ -757,11 +738,11 @@ void gl_r_draw(RPrim prim, const RVertex *v, int count)
     if (!v || count <= 0) return;
     RMat4 mvp, mv;
     if (s_two_d) {
-        RMat4 ortho; mat_identity(&ortho);
+        RMat4 ortho; mx_mat4_identity(&ortho);
         ortho.m[0] = 2.0f / IW; ortho.m[5] = -2.0f / IH;
         ortho.m[12] = -1.0f; ortho.m[13] = 1.0f;
         mvp = ortho;
-        mat_identity(&mv);
+        mx_mat4_identity(&mv);
         set_common_uniforms(&mvp, &mv);
         glUniform1i(u_dither, 0);
         if (prim == R_PRIM_SPRITES) {
@@ -785,8 +766,8 @@ void gl_r_draw(RPrim prim, const RVertex *v, int count)
                         (prim == R_PRIM_TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES));
         return;
     }
-    mat_mul(&mv, &s_view, &s_model);
-    mat_mul(&mvp, &s_proj, &mv);
+    mx_mat4_mul(&mv, &s_view, &s_model);
+    mx_mat4_mul(&mvp, &s_proj, &mv);
     set_common_uniforms(&mvp, &mv);
     upload_and_draw(v, count, 0, prim == R_PRIM_LINES ? GL_LINES :
                     (prim == R_PRIM_TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES));
@@ -796,8 +777,8 @@ void gl_r_draw_native(RPrim prim, const RVertexNative *v, int count)
 {
     if (!v || count <= 0 || s_two_d) return;
     RMat4 mvp, mv;
-    mat_mul(&mv, &s_view, &s_model);
-    mat_mul(&mvp, &s_proj, &mv);
+    mx_mat4_mul(&mv, &s_view, &s_model);
+    mx_mat4_mul(&mvp, &s_proj, &mv);
     set_common_uniforms(&mvp, &mv);
     upload_and_draw(v, count, 1, prim == R_PRIM_TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES);
 }

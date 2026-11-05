@@ -11,7 +11,9 @@
 
 #include <stdint.h>
 
-typedef struct { float m[16]; } RMat4;   // column-major
+#include "engine/core/math.h"
+
+typedef MxMat4 RMat4;
 typedef struct { float x, y, z; } RVec3;
 
 // Position, normalised texture coordinates and ABGR8888 vertex colour.

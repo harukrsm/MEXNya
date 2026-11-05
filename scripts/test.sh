@@ -13,6 +13,10 @@ python3 scripts/check_i18n.py
 
 "$BUILD/runtime_test" "$PWD"
 
+mkdir -p "$OUT/core"
+"$BUILD/core_test" "$OUT/core"
+echo "core OK"
+
 "$BUILD/engine-smoke" --headless --frames 30 --shot "$OUT/smoke.bmp" > "$OUT/smoke.log"
 grep -q "engine-smoke: 30 frames" "$OUT/smoke.log"
 echo "engine smoke OK"
