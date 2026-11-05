@@ -345,7 +345,9 @@ static void test_log(const char *dir)
 int main(int argc, char **argv)
 {
     const char *dir = argc > 1 ? argv[1] : ".";
+#ifdef MX_MEM_TRACK
     size_t base = mx_mem_live_blocks();
+#endif
     test_mem();
     test_vec();
     test_map();
