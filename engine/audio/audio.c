@@ -228,7 +228,7 @@ void audio_debug_dump(const char *path)
     unsigned int pos = s_capture_pos;
     memcpy(buf + 44, s_capture + pos * 2, (size_t)(CAPTURE_FRAMES - pos) * 4);
     memcpy(buf + 44 + (CAPTURE_FRAMES - pos) * 4, s_capture, (size_t)pos * 4);
-    plat_write_file(path, buf, size);
+    plat_write_file_atomic(path, buf, size);
     free(buf);
 }
 #endif

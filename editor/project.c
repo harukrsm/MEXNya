@@ -417,6 +417,6 @@ void notes_export_md(void)
     }
     if (!total) PUT("No notes yet.\n");
 #undef PUT
-    plat_write_file(path, b, (int)n);
+    plat_write_file_atomic(path, b, (int)n);
     free(b);
 }

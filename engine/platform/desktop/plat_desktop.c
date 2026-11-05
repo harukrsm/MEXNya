@@ -14,10 +14,17 @@
 
 #ifdef _WIN32
 #include <direct.h>
+#include <fcntl.h>
+#include <io.h>
+#include <process.h>
 #include <windows.h>
+#define mx_getpid _getpid
 #else
 #include <dirent.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <unistd.h>
+#define mx_getpid getpid
 #endif
 #ifdef __APPLE__
 #include <malloc/malloc.h>
@@ -137,6 +144,151 @@ int plat_write_file(const char *path, const void *data, int size)
     if (fclose(f) != 0)
         ok = 0;
     return ok ? 0 : -1;
+}
+
+
+int plat_write_file_atomic(const char *path, const void *data, int size)
+{
+    char tmp[1200];
+    unsigned long tag = (unsigned long)(uintptr_t)&tmp;
+    snprintf(tmp, sizeof(tmp), "%s.tmp.%ld.%lx", path, (long)mx_getpid(), tag);
+    FILE *f = fopen(tmp, "wb");
+    if (!f)
+        return -1;
+    int ok = size == 0 || fwrite(data, 1, (size_t)size, f) == (size_t)size;
+    if (ok && fflush(f) != 0)
+        ok = 0;
+    if (ok) {
+#ifdef _WIN32
+        ok = _commit(_fileno(f)) == 0;
+#else
+        ok = fsync(fileno(f)) == 0;
+#endif
+    }
+    if (fclose(f) != 0)
+        ok = 0;
+    if (!ok) {
+        remove(tmp);
+        return -1;
+    }
+#ifdef _WIN32
+    if (!MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        remove(tmp);
+        return -1;
+    }
+#else
+    if (rename(tmp, path) != 0) {
+        remove(tmp);
+        return -1;
+    }
+#endif
+    return 0;
+}
+
+typedef struct {
+    int handle;
+    char path[1024];
+} LockSlot;
+
+static LockSlot s_locks[8];
+
+static int process_alive(long pid)
+{
+    if (pid <= 0)
+        return 0;
+#ifdef _WIN32
+    HANDLE h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, (DWORD)pid);
+    if (!h)
+        return 0;
+    DWORD code = 0;
+    int alive = GetExitCodeProcess(h, &code) && code == STILL_ACTIVE;
+    CloseHandle(h);
+    return alive;
+#else
+    return kill((pid_t)pid, 0) == 0 || errno == EPERM;
+#endif
+}
+
+static long lock_owner(const char *path)
+{
+    FILE *f = fopen(path, "rb");
+    long pid = 0;
+    if (!f)
+        return 0;
+    if (fscanf(f, "%ld", &pid) != 1)
+        pid = 0;
+    fclose(f);
+    return pid;
+}
+
+int plat_try_lock(const char *path)
+{
+    static int initialized;
+    if (!initialized) {
+        for (int i = 0; i < 8; i++) s_locks[i].handle = -1;
+        initialized = 1;
+    }
+    for (int attempt = 0; attempt < 2; attempt++) {
+        int fd;
+#ifdef _WIN32
+        fd = _open(path, _O_CREAT | _O_EXCL | _O_WRONLY, _S_IREAD | _S_IWRITE);
+#else
+        fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0644);
+#endif
+        if (fd >= 0) {
+            char text[32];
+            int n = snprintf(text, sizeof(text), "%ld\n", (long)mx_getpid());
+#ifdef _WIN32
+            _write(fd, text, (unsigned)n);
+#else
+            if (write(fd, text, (size_t)n) != (ssize_t)n) {
+                close(fd);
+                remove(path);
+                return -1;
+            }
+#endif
+            for (int i = 0; i < 8; i++) {
+                if (s_locks[i].handle >= 0)
+                    continue;
+                s_locks[i].handle = fd;
+                snprintf(s_locks[i].path, sizeof(s_locks[i].path), "%s", path);
+                return fd;
+            }
+#ifdef _WIN32
+            _close(fd);
+#else
+            close(fd);
+#endif
+            remove(path);
+            return -1;
+        }
+        if (errno != EEXIST)
+            return -1;
+        long pid = lock_owner(path);
+        if (process_alive(pid))
+            return -1;
+        remove(path);
+    }
+    return -1;
+}
+
+void plat_unlock(int handle)
+{
+    if (handle < 0)
+        return;
+    for (int i = 0; i < 8; i++) {
+        if (s_locks[i].handle != handle)
+            continue;
+#ifdef _WIN32
+        _close(handle);
+#else
+        close(handle);
+#endif
+        remove(s_locks[i].path);
+        s_locks[i].handle = -1;
+        s_locks[i].path[0] = 0;
+        return;
+    }
 }
 
 int plat_file_exists(const char *path)

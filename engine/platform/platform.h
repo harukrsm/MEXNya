@@ -38,6 +38,12 @@ int plat_exe_dir(char *out, int out_size);
 // Returns NULL when missing. Caller frees with free().
 void *plat_read_file(const char *path, int *size, int align);
 int plat_write_file(const char *path, const void *data, int size);
+// Writes to a sibling temporary file, flushes it to disk and renames it into place.
+int plat_write_file_atomic(const char *path, const void *data, int size);
+// Creates path exclusively and records this process. Returns a handle, or -1 when
+// another live process holds it. A lock left by a dead process is reclaimed.
+int plat_try_lock(const char *path);
+void plat_unlock(int handle);
 int plat_file_exists(const char *path);
 int plat_file_size(const char *path);
 int plat_remove_file(const char *path);

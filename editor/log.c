@@ -84,6 +84,12 @@ void log_op(const char *who, const Json *req, const Json *res, double ms)
     ed_path(dir, sizeof(dir), "agent");
     plat_mkdirs(dir);
     ed_path(path, sizeof(path), "agent/log.jsonl");
+    if (plat_file_size(path) > 10 * 1024 * 1024) {
+        char old[ED_PATH];
+        snprintf(old, sizeof(old), "%s.1", path);
+        plat_remove_file(old);
+        plat_rename_file(path, old);
+    }
     FILE *f = fopen(path, "ab");
     if (f) { fputs(line, f); fputc('\n', f); fclose(f); }
     char shown[LEN];

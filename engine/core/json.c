@@ -331,13 +331,9 @@ int json_save(const char *path, const Json *j)
 {
     char *t = json_write(j, 2);
     if (!t) return -1;
-    char tmp[1100];
-    snprintf(tmp, sizeof(tmp), "%s.tmp", path);
-    int r = plat_write_file(tmp, t, (int)strlen(t));
+    int r = plat_write_file_atomic(path, t, (int)strlen(t));
     free(t);
-    if (r != 0) return -1;
-    plat_remove_file(path);
-    return plat_rename_file(tmp, path);
+    return r;
 }
 
 // ---------------------------------------------------------------- access

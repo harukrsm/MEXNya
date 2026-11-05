@@ -89,7 +89,9 @@ void agent_write_guide(void)
     PUT(
         "Set `MEXNYA_AGENT=<your name>` (or pass `--as <name>`) so the log shows who you are.\n"
         "With the editor open the call goes through `mexnya/agent/inbox/` and the person sees it\n"
-        "happen; without it the same operation runs headless on the files. Both save at once.\n\n"
+        "happen; without it the same operation runs headless on the files. Both save at once.\n"
+        "One editor owns a project at a time (`mexnya/.lock`); a second one exits instead of\n"
+        "writing, so use `mexnya agent`, which forwards to the running editor.\n\n"
         "Raw protocol: write `mexnya/agent/inbox/<id>.json` with `{\"agent\", \"op\", \"args\"}` or\n"
         "`{\"agent\", \"batch\": [{\"op\", \"args\"}, ...]}`; read `mexnya/agent/outbox/<id>.json`.\n\n"
         "Lua: `script.run {\"code\": \"...\"}` runs with the `mx` API (`mx.op(name, args)`, `mx.log`).\n\n");
@@ -109,7 +111,7 @@ void agent_write_guide(void)
     PUT("\n`scene` defaults to the scene that is active in the editor. Coordinates: 3D in metres\n"
         "(y up), `rot` in degrees [x, y, z]; 2D `rect` [x, y, w, h] in canvas pixels.\n");
 #undef PUT
-    plat_write_file(path, b, (int)n);
+    plat_write_file_atomic(path, b, (int)n);
     free(b);
     json_free(help);
 }
@@ -144,7 +146,7 @@ static void heartbeat(void)
     char t[300];
     snprintf(t, sizeof(t), "{\"pid\": %d, \"time\": %lld, \"version\": \"%s\", \"scene\": \"%s\"}\n",
              (int)getpid(), (long long)time(NULL), ED_VERSION, scene_id(cur_scene()));
-    plat_write_file(path, t, (int)strlen(t));
+    plat_write_file_atomic(path, t, (int)strlen(t));
 }
 
 void agent_shutdown_beat(void)

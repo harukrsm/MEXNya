@@ -171,7 +171,7 @@ int png_save_rgb(const char *path, const unsigned char *rgb, int w, int h)
     chunk(&f, "IDAT", z.d, z.n);
     chunk(&f, "IEND", NULL, 0);
     free(z.d);
-    int r = f.d ? plat_write_file(path, f.d, (int)f.n) : -1;
+    int r = f.d ? plat_write_file_atomic(path, f.d, (int)f.n) : -1;
     free(f.d);
     return r;
 }

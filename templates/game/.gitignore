@@ -4,3 +4,4 @@ mexnya/agent/outbox/
 mexnya/agent/editor.json
 mexnya/agent/commit-msg.txt
 mexnya/snapshots/
+mexnya/.lock

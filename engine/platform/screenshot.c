@@ -38,7 +38,7 @@ int screenshot_save_565(const char *path, const unsigned short *pixels, int widt
             row[x * 3 + 2] = (unsigned char)((r << 3) | (r >> 2));
         }
     }
-    int ok = plat_write_file(path, buf, 54 + row_bytes * height);
+    int ok = plat_write_file_atomic(path, buf, 54 + row_bytes * height);
     free(buf);
     return ok;
 }

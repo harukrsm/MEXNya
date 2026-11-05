@@ -687,7 +687,7 @@ static void write_template(void)
         "{\n  \"name\": \"scatter\",\n  \"version\": \"1.0\",\n"
         "  \"description\": \"Scatters boxes in a ring: an example Lua plugin that adds an operation.\",\n"
         "  \"lua\": \"main.lua\"\n}\n";
-    plat_write_file(path, manifest, (int)strlen(manifest));
+    plat_write_file_atomic(path, manifest, (int)strlen(manifest));
     snprintf(path, sizeof(path), "%s/main.lua", dir);
     const char *lua =
         "-- Example plugin: adds the operation \"scatter.ring\".\n"
@@ -709,7 +709,7 @@ static void write_template(void)
         "mx.on(\"note.resolve\", function(op, args)\n"
         "  mx.status(\"note \" .. tostring(args.id) .. \" resolved\")\n"
         "end)\n";
-    plat_write_file(path, lua, (int)strlen(lua));
+    plat_write_file_atomic(path, lua, (int)strlen(lua));
 }
 
 void plugins_page(int x, int y, int w, int h)

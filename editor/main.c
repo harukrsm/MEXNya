@@ -28,6 +28,7 @@
 #endif
 
 extern char ed_shot_path[];
+static int s_lock = -1;
 static void settings_dialog(void);
 static const char *const MODES[MODE_COUNT] = {"tab.scene", "tab.graph", "tab.build", "tab.git", "tab.agent", "tab.plugins"};
 
@@ -368,6 +369,19 @@ int main(int argc, char **argv)
     plat_exe_dir(ed.exe_dir, sizeof(ed.exe_dir));
     find_root(ed.root, sizeof(ed.root), project);
     snprintf(ed.agent_name, sizeof(ed.agent_name), "%s", who && !exec ? who : "human");
+
+    char lock_dir[ED_PATH + 16], lock_path[ED_PATH + 32];
+    snprintf(lock_dir, sizeof(lock_dir), "%s/mexnya", ed.root);
+    plat_mkdirs(lock_dir);
+    snprintf(lock_path, sizeof(lock_path), "%s/.lock", lock_dir);
+    s_lock = plat_try_lock(lock_path);
+    if (s_lock < 0) {
+        if (exec)
+            printf("{\"ok\": false, \"error\": \"another MEXNya editor instance is using this project\"}\n");
+        else
+            fprintf(stderr, "MexnyaEditor: another editor instance is using this project (%s)\n", lock_path);
+        return 1;
+    }
     char assets[ED_PATH + 16];
     snprintf(assets, sizeof(assets), "%s/assets", ed.root);
     if (dir_exists(assets)) file_set_data_dir(assets);
@@ -377,6 +391,7 @@ int main(int argc, char **argv)
                         ed.headless ? "software" : backend, !ed.headless};
     if (engine_init(&cfg) != 0) {
         fprintf(stderr, "MexnyaEditor: engine init failed\n");
+        plat_unlock(s_lock);
         return 1;
     }
     ed.ui_scale = 1;
@@ -396,6 +411,7 @@ int main(int argc, char **argv)
     if (project_open(ed.root) != 0) {
         fprintf(stderr, "MexnyaEditor: cannot open the project in %s/mexnya\n", ed.root);
         engine_shutdown();
+        plat_unlock(s_lock);
         return 1;
     }
     plugins_load();
@@ -405,6 +421,7 @@ int main(int argc, char **argv)
         script_shutdown();
         project_close();
         engine_shutdown();
+        plat_unlock(s_lock);
         return r;
     }
     ed.time = plat_time();
@@ -478,5 +495,6 @@ int main(int argc, char **argv)
     script_shutdown();
     project_close();
     engine_shutdown();
+    plat_unlock(s_lock);
     return 0;
 }

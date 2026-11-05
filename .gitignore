@@ -4,5 +4,6 @@
 __pycache__/
 *.py[cod]
 *.tmp
+*.tmp.*
 crash.log
 *.dSYM/
